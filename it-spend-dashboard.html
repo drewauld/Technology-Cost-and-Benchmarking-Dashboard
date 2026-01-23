@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technology Cost & Benchmarking Dashboard | TechElevate</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary-navy: #092c50;
+            --accent-mint: #8bd8bd;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --border-gray: #e0e0e0;
+            --text-dark: #333333;
+            --text-light: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            color: var(--primary-navy);
+        }
+
+        .header {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: var(--white);
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header .subtitle {
+            color: var(--accent-mint);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--accent-mint);
+        }
+
+        /* Input Controls */
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group .help-text {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .input-group input {
+            padding: 0.75rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card.highlight {
+            background: linear-gradient(135deg, var(--accent-mint) 0%, #6fc4a8 100%);
+            color: var(--primary-navy);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+        }
+
+        .kpi-comparison {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Data Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background-color: var(--primary-navy);
+            color: var(--white);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border-gray);
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(139, 216, 189, 0.1);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+        }
+
+        .number {
+            text-align: right;
+            font-weight: 700;
+            color: var(--primary-navy);
+        }
+
+        /* Filters */
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .filter-controls select {
+            padding: 0.5rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            background-color: var(--white);
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .filter-controls button {
+            padding: 0.5rem 1.5rem;
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+            border: none;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .filter-controls button:hover {
+            background-color: #6fc4a8;
+        }
+
+        /* Run/Grow/Transform Badge */
+        .rgt-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .rgt-run {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .rgt-grow {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .rgt-transform {
+            background-color: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .inputs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        .info-banner {
+            background-color: rgba(139, 216, 189, 0.2);
+            border-left: 4px solid var(--accent-mint);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-banner p {
+            margin: 0;
+            color: var(--text-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Technology Cost & Benchmarking Dashboard</h1>
+        <p class="subtitle">TechElevate | Technology Consulting</p>
+    </div>
+
+    <div class="container">
+        <!-- User Inputs -->
+        <div class="card">
+            <h2>Configuration & Assumptions</h2>
+            <div class="info-banner">
+                <p>Adjust these inputs to normalize benchmarks for your organization's context. All metrics will recalculate automatically.</p>
+            </div>
+            <div class="inputs-grid">
+                <div class="input-group">
+                    <label for="annualTurnover">Annual Turnover ($)</label>
+                    <input type="number" id="annualTurnover" value="50000000" min="0" step="100000">
+                    <span class="help-text">Used to calculate IT spend as % of revenue</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="officeUsers">Office Users</label>
+                    <input type="number" id="officeUsers" value="150" min="0" step="1">
+                    <span class="help-text">Knowledge workers with individual devices</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="fieldUsers">Field / Site Users</label>
+                    <input type="number" id="fieldUsers" value="50" min="0" step="1">
+                    <span class="help-text">Operational staff with shared devices</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="sites">Sites / Locations</label>
+                    <input type="number" id="sites" value="5" min="1" step="1">
+                    <span class="help-text">Physical locations requiring IT infrastructure</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="sharedAllocation">Shared Cost Allocation (Office %)</label>
+                    <input type="number" id="sharedAllocation" value="50" min="0" max="100" step="5">
+                    <span class="help-text">% of shared costs allocated to office users</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="benchmarkRevenue">Benchmark: IT Spend % of Revenue</label>
+                    <input type="number" id="benchmarkRevenue" value="3.5" min="0" max="100" step="0.1">
+                    <span class="help-text">Industry P75 benchmark</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="benchmarkPerUser">Benchmark: IT Spend per User ($)</label>
+                    <input type="number" id="benchmarkPerUser" value="8000" min="0" step="100">
+                    <span class="help-text">Industry P75 benchmark</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid" id="kpiGrid">
+            <!-- KPIs will be dynamically generated here -->
+        </div>
+
+        <!-- Monthly Trend Chart -->
+        <div class="card">
+            <h2>Monthly IT Spend Trend</h2>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Breakdown Charts -->
+        <div class="charts-row">
+            <div class="card">
+                <h2>Spend by Category Level 2</h2>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Spend by Top Vendors</h2>
+                <div class="chart-container">
+                    <canvas id="vendorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Run/Grow/Transform Split -->
+        <div class="card">
+            <h2>Run / Grow / Transform Analysis</h2>
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="rgtChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card">
+            <h2>Detailed Spend Data</h2>
+            <div class="filter-controls">
+                <select id="filterL1">
+                    <option value="">All Categories (L1)</option>
+                </select>
+                <select id="filterL2">
+                    <option value="">All Categories (L2)</option>
+                </select>
+                <select id="filterVendor">
+                    <option value="">All Vendors</option>
+                </select>
+                <button onclick="resetFilters()">Reset Filters</button>
+            </div>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Category L1</th>
+                            <th>Category L2</th>
+                            <th>Category L3</th>
+                            <th>Vendor</th>
+                            <th class="number">Annual Total ($)</th>
+                            <th class="number">Monthly Avg ($)</th>
+                            <th>Classification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        let spendData = [];
+        let charts = {};
+
+        // Classification rules for Office vs Field vs Shared
+        const classificationRules = {
+            office: [
+                'M365 - Information Workers',
+                'IT Support Services - Information Workers',
+                'Information Workers',
+                'Laptops',
+                'Desktops',
+                'Peripherals',
+                'Microsoft Copilot',
+                'Adobe',
+                'Bluebeam',
+                'AutoTask',
+                'Exchange Online',
+                'Visio',
+                'MS Project',
+                'Exclaimer'
+            ],
+            field: [
+                'M365 - Mobile Workers',
+                'IT Support Services - Mobile Workers',
+                'Mobile Workers',
+                'Mobile',
+                'SAP',
+                'FSM',
+                'Expense Management'
+            ],
+            shared: [
+                'Networks',
+                'WAN',
+                'LAN',
+                'Internet',
+                'Connectivity',
+                'Fixed',
+                'Teams',
+                'Backup',
+                'Security',
+                'Identity',
+                'Power',
+                'Dataverse',
+                'Fabric',
+                'Licensing',
+                'CIO',
+                'DR',
+                'Continuity'
+            ]
+        };
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('spend_data.json');
+                spendData = await response.json();
+
+                // Filter out user count rows
+                spendData = spendData.filter(row =>
+                    row['Category Level 1'] !== 'User Counts'
+                );
+
+                initializeDashboard();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.querySelector('.container').innerHTML +=
+                    '<div class="card" style="background-color: #ffebee; color: #c62828;">' +
+                    '<h2>Error Loading Data</h2>' +
+                    '<p>Could not load spend_data.json. Please ensure the file exists in the same directory.</p>' +
+                    '</div>';
+            }
+        }
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            populateFilters();
+            calculateAndDisplayKPIs();
+            createCharts();
+            populateDataTable();
+
+            // Add event listeners for inputs
+            const inputs = ['annualTurnover', 'officeUsers', 'fieldUsers', 'sites',
+                          'sharedAllocation', 'benchmarkRevenue', 'benchmarkPerUser'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', () => {
+                    calculateAndDisplayKPIs();
+                    updateCharts();
+                });
+            });
+
+            // Add filter event listeners
+            ['filterL1', 'filterL2', 'filterVendor'].forEach(id => {
+                document.getElementById(id).addEventListener('change', populateDataTable);
+            });
+        }
+
+        // Classify cost as office, field, or shared
+        function classifyCost(row) {
+            const l2 = row['Category Level 2'] || '';
+            const l3 = row['Category Level 3'] || '';
+            const text = (l2 + ' ' + l3).toLowerCase();
+
+            // Check office keywords
+            for (const keyword of classificationRules.office) {
+                if (text.includes(keyword.toLowerCase())) {
+                    return 'office';
+                }
+            }
+
+            // Check field keywords
+            for (const keyword of classificationRules.field) {
+                if (text.includes(keyword.toLowerCase())) {
+                    return 'field';
+                }
+            }
+
+            // Default to shared
+            return 'shared';
+        }
+
+        // Get monthly values from row
+        function getMonthlyValues(row) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return months.map(month => {
+                const value = row[month];
+                // Handle formula strings
+                if (typeof value === 'string' && value.startsWith('=')) {
+                    // Simple formula evaluation (for demo purposes)
+                    try {
+                        return eval(value.substring(1));
+                    } catch {
+                        return 0;
+                    }
+                }
+                return parseFloat(value) || 0;
+            });
+        }
+
+        // Calculate total annual spend
+        function calculateTotalSpend() {
+            let total = 0;
+            spendData.forEach(row => {
+                const monthlyValues = getMonthlyValues(row);
+                total += monthlyValues.reduce((sum, val) => sum + val, 0);
+            });
+            return total;
+        }
+
+        // Calculate monthly totals
+        function calculateMonthlyTotals() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const totals = new Array(12).fill(0);
+
+            spendData.forEach(row => {
+                const values = getMonthlyValues(row);
+                values.forEach((val, idx) => {
+                    totals[idx] += val;
+                });
+            });
+
+            return totals;
+        }
+
+        // Calculate office/field/shared splits
+        function calculateUserSplits() {
+            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
+            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
+            const sharedAllocation = parseFloat(document.getElementById('sharedAllocation').value) / 100;
+
+            let officeCosts = 0;
+            let fieldCosts = 0;
+            let sharedCosts = 0;
+
+            spendData.forEach(row => {
+                const monthlyValues = getMonthlyValues(row);
+                const rowTotal = monthlyValues.reduce((sum, val) => sum + val, 0);
+                const classification = classifyCost(row);
+
+                if (classification === 'office') {
+                    officeCosts += rowTotal;
+                } else if (classification === 'field') {
+                    fieldCosts += rowTotal;
+                } else {
+                    sharedCosts += rowTotal;
+                }
+            });
+
+            // Allocate shared costs
+            const sharedToOffice = sharedCosts * sharedAllocation;
+            const sharedToField = sharedCosts * (1 - sharedAllocation);
+
+            officeCosts += sharedToOffice;
+            fieldCosts += sharedToField;
+
+            return {
+                officeCosts,
+                fieldCosts,
+                sharedCosts,
+                officePerUser: officeUsers > 0 ? officeCosts / officeUsers : 0,
+                fieldPerUser: fieldUsers > 0 ? fieldCosts / fieldUsers : 0
+            };
+        }
+
+        // Calculate and display KPIs
+        function calculateAndDisplayKPIs() {
+            const annualTurnover = parseFloat(document.getElementById('annualTurnover').value) || 0;
+            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
+            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
+            const sites = parseFloat(document.getElementById('sites').value) || 1;
+            const benchmarkRevenue = parseFloat(document.getElementById('benchmarkRevenue').value) || 0;
+            const benchmarkPerUser = parseFloat(document.getElementById('benchmarkPerUser').value) || 0;
+
+            const totalSpend = calculateTotalSpend();
+            const totalUsers = officeUsers + fieldUsers;
+            const spendAsPercentRevenue = annualTurnover > 0 ? (totalSpend / annualTurnover) * 100 : 0;
+            const blendedPerUser = totalUsers > 0 ? totalSpend / totalUsers : 0;
+            const perSite = totalSpend / sites;
+            const userSplits = calculateUserSplits();
+            const workforceMix = totalUsers > 0 ? {
+                officePercent: (officeUsers / totalUsers) * 100,
+                fieldPercent: (fieldUsers / totalUsers) * 100
+            } : { officePercent: 0, fieldPercent: 0 };
+
+            // Generate KPI HTML
+            const kpisHTML = `
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">Total Technology Spend</div>
+                    <div class="kpi-value">$${totalSpend.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">Annual</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">IT Spend as % of Revenue</div>
+                    <div class="kpi-value">${spendAsPercentRevenue.toFixed(2)}%</div>
+                    <div class="kpi-comparison">Benchmark: ${benchmarkRevenue}% | ${spendAsPercentRevenue > benchmarkRevenue ? 'Above' : 'Below'}</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Blended IT Spend per User</div>
+                    <div class="kpi-value">$${blendedPerUser.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">Benchmark: $${benchmarkPerUser.toLocaleString()} | ${blendedPerUser > benchmarkPerUser ? 'Above' : 'Below'}</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">IT Spend per Office User</div>
+                    <div class="kpi-value">$${userSplits.officePerUser.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">${officeUsers} office users</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">IT Spend per Field User</div>
+                    <div class="kpi-value">$${userSplits.fieldPerUser.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">${fieldUsers} field users</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">IT Spend per Site</div>
+                    <div class="kpi-value">$${perSite.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">${sites} sites / locations</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Workforce Mix</div>
+                    <div class="kpi-value">${workforceMix.officePercent.toFixed(0)}% / ${workforceMix.fieldPercent.toFixed(0)}%</div>
+                    <div class="kpi-comparison">Office / Field</div>
+                </div>
+
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">Average Monthly Spend</div>
+                    <div class="kpi-value">$${(totalSpend / 12).toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">Last 12 months</div>
+                </div>
+            `;
+
+            document.getElementById('kpiGrid').innerHTML = kpisHTML;
+        }
+
+        // Create all charts
+        function createCharts() {
+            createTrendChart();
+            createCategoryChart();
+            createVendorChart();
+            createRGTChart();
+        }
+
+        // Update all charts
+        function updateCharts() {
+            Object.values(charts).forEach(chart => chart.destroy());
+            createCharts();
+        }
+
+        // Create trend chart
+        function createTrendChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const monthlyTotals = calculateMonthlyTotals();
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            const benchmarkPerUser = parseFloat(document.getElementById('benchmarkPerUser').value) || 0;
+            const totalUsers = (parseFloat(document.getElementById('officeUsers').value) || 0) +
+                             (parseFloat(document.getElementById('fieldUsers').value) || 0);
+            const benchmarkMonthly = totalUsers > 0 ? (benchmarkPerUser * totalUsers) / 12 : 0;
+
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Actual Spend',
+                            data: monthlyTotals,
+                            borderColor: '#092c50',
+                            backgroundColor: 'rgba(9, 44, 80, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Benchmark (P75)',
+                            data: new Array(12).fill(benchmarkMonthly),
+                            borderColor: '#8bd8bd',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' +
+                                           context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'k';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create category breakdown chart
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+
+            // Aggregate by Category L2
+            const categoryTotals = {};
+            spendData.forEach(row => {
+                const category = row['Category Level 2'] || 'Unknown';
+                const monthlyValues = getMonthlyValues(row);
+                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+
+                categoryTotals[category] = (categoryTotals[category] || 0) + total;
+            });
+
+            // Sort and get top categories
+            const sortedCategories = Object.entries(categoryTotals)
+                .sort((a, b) => b[1] - a[1]);
+
+            const labels = sortedCategories.map(([cat]) => cat);
+            const data = sortedCategories.map(([, total]) => total);
+
+            // Generate colors
+            const colors = generateColors(labels.length);
+
+            charts.category = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': $' +
+                                           context.parsed.toLocaleString(undefined, {maximumFractionDigits: 0}) +
+                                           ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create vendor breakdown chart
+        function createVendorChart() {
+            const ctx = document.getElementById('vendorChart').getContext('2d');
+
+            // Aggregate by Vendor
+            const vendorTotals = {};
+            spendData.forEach(row => {
+                const vendor = row['Vendor'] || 'Unknown';
+                const monthlyValues = getMonthlyValues(row);
+                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+
+                vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
+            });
+
+            // Sort and get top 10 vendors
+            const sortedVendors = Object.entries(vendorTotals)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const labels = sortedVendors.map(([vendor]) => vendor);
+            const data = sortedVendors.map(([, total]) => total);
+
+            charts.vendor = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Annual Spend',
+                        data: data,
+                        backgroundColor: '#8bd8bd',
+                        borderColor: '#092c50',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.x.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'k';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Run/Grow/Transform chart
+        function createRGTChart() {
+            const ctx = document.getElementById('rgtChart').getContext('2d');
+
+            // For this demo, all costs are BAU (Run)
+            // In a real implementation, you would classify based on Cost Type
+            const totalSpend = calculateTotalSpend();
+
+            charts.rgt = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Run (BAU)', 'Grow', 'Transform'],
+                    datasets: [{
+                        data: [totalSpend, 0, 0],
+                        backgroundColor: ['#1565c0', '#ef6c00', '#6a1b9a'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                    return context.label + ': $' +
+                                           context.parsed.toLocaleString(undefined, {maximumFractionDigits: 0}) +
+                                           ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Generate colors for charts
+        function generateColors(count) {
+            const baseColors = [
+                '#092c50', '#8bd8bd', '#1565c0', '#ef6c00', '#6a1b9a',
+                '#2e7d32', '#c62828', '#6a1b9a', '#00838f', '#f57c00'
+            ];
+
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(baseColors[i % baseColors.length]);
+            }
+            return colors;
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const l1Set = new Set();
+            const l2Set = new Set();
+            const vendorSet = new Set();
+
+            spendData.forEach(row => {
+                if (row['Category Level 1']) l1Set.add(row['Category Level 1']);
+                if (row['Category Level 2']) l2Set.add(row['Category Level 2']);
+                if (row['Vendor']) vendorSet.add(row['Vendor']);
+            });
+
+            const filterL1 = document.getElementById('filterL1');
+            const filterL2 = document.getElementById('filterL2');
+            const filterVendor = document.getElementById('filterVendor');
+
+            Array.from(l1Set).sort().forEach(val => {
+                const option = document.createElement('option');
+                option.value = val;
+                option.textContent = val;
+                filterL1.appendChild(option);
+            });
+
+            Array.from(l2Set).sort().forEach(val => {
+                const option = document.createElement('option');
+                option.value = val;
+                option.textContent = val;
+                filterL2.appendChild(option);
+            });
+
+            Array.from(vendorSet).sort().forEach(val => {
+                const option = document.createElement('option');
+                option.value = val;
+                option.textContent = val;
+                filterVendor.appendChild(option);
+            });
+        }
+
+        // Populate data table
+        function populateDataTable() {
+            const filterL1 = document.getElementById('filterL1').value;
+            const filterL2 = document.getElementById('filterL2').value;
+            const filterVendor = document.getElementById('filterVendor').value;
+
+            const filteredData = spendData.filter(row => {
+                if (filterL1 && row['Category Level 1'] !== filterL1) return false;
+                if (filterL2 && row['Category Level 2'] !== filterL2) return false;
+                if (filterVendor && row['Vendor'] !== filterVendor) return false;
+                return true;
+            });
+
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            filteredData.forEach(row => {
+                const monthlyValues = getMonthlyValues(row);
+                const annualTotal = monthlyValues.reduce((sum, val) => sum + val, 0);
+                const monthlyAvg = annualTotal / 12;
+                const classification = classifyCost(row);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row['Category Level 1'] || ''}</td>
+                    <td>${row['Category Level 2'] || ''}</td>
+                    <td>${row['Category Level 3'] || ''}</td>
+                    <td>${row['Vendor'] || ''}</td>
+                    <td class="number">$${annualTotal.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                    <td class="number">$${monthlyAvg.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                    <td><span class="rgt-badge rgt-run">${classification.toUpperCase()}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('filterL1').value = '';
+            document.getElementById('filterL2').value = '';
+            document.getElementById('filterVendor').value = '';
+            populateDataTable();
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
