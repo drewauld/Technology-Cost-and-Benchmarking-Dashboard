@@ -386,6 +386,14 @@
             </div>
         </div>
 
+        <!-- Per User Spend Breakdown -->
+        <div class="card">
+            <h2>IT Spend per User - Category Breakdown</h2>
+            <div class="chart-container" style="height: 500px;">
+                <canvas id="perUserBreakdownChart"></canvas>
+            </div>
+        </div>
+
         <!-- Breakdown Charts -->
         <div class="charts-row">
             <div class="card">
@@ -684,8 +692,8 @@
 
                 <div class="kpi-card">
                     <div class="kpi-label">IT Spend as % of Revenue</div>
-                    <div class="kpi-value">${spendAsPercentRevenue.toFixed(2)}%</div>
-                    <div class="kpi-comparison">Benchmark: ${benchmarkRevenue}% | ${spendAsPercentRevenue > benchmarkRevenue ? 'Above' : 'Below'}</div>
+                    <div class="kpi-value">${(spendAsPercentRevenue / 100).toFixed(2)}%</div>
+                    <div class="kpi-comparison">Benchmark: ${benchmarkRevenue}% | ${(spendAsPercentRevenue / 100) > benchmarkRevenue ? 'Above' : 'Below'}</div>
                 </div>
 
                 <div class="kpi-card">
@@ -731,6 +739,7 @@
         // Create all charts
         function createCharts() {
             createTrendChart();
+            createPerUserBreakdownChart();
             createCategoryChart();
             createVendorChart();
             createRGTChart();
@@ -753,6 +762,15 @@
             const totalUsers = (parseFloat(document.getElementById('officeUsers').value) || 0) +
                              (parseFloat(document.getElementById('fieldUsers').value) || 0);
             const benchmarkMonthly = totalUsers > 0 ? (benchmarkPerUser * totalUsers) / 12 : 0;
+
+            // Calculate dynamic scale based on data
+            const minValue = Math.min(...monthlyTotals);
+            const maxValue = Math.max(...monthlyTotals);
+            const range = maxValue - minValue;
+
+            // Add 10% padding below min and above max
+            const paddedMin = Math.max(0, minValue - (range * 0.1));
+            const paddedMax = maxValue + (range * 0.1);
 
             charts.trend = new Chart(ctx, {
                 type: 'line',
@@ -798,12 +816,153 @@
                     },
                     scales: {
                         y: {
-                            beginAtZero: true,
+                            min: paddedMin,
+                            max: paddedMax,
                             ticks: {
                                 callback: function(value) {
                                     return '$' + (value / 1000).toFixed(0) + 'k';
                                 }
                             }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create per-user breakdown chart by category
+        function createPerUserBreakdownChart() {
+            const ctx = document.getElementById('perUserBreakdownChart').getContext('2d');
+            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
+            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
+            const sharedAllocation = parseFloat(document.getElementById('sharedAllocation').value) / 100;
+
+            // Aggregate costs by category L1 for office, field, and shared
+            const categoryBreakdown = {
+                office: {},
+                field: {},
+                shared: {}
+            };
+
+            spendData.forEach(row => {
+                const category = row['Category Level 1'] || 'Unknown';
+                const monthlyValues = getMonthlyValues(row);
+                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                const classification = classifyCost(row);
+
+                if (!categoryBreakdown[classification][category]) {
+                    categoryBreakdown[classification][category] = 0;
+                }
+                categoryBreakdown[classification][category] += total;
+            });
+
+            // Allocate shared costs
+            const officeCategories = {};
+            const fieldCategories = {};
+
+            // Add direct office costs
+            Object.entries(categoryBreakdown.office).forEach(([cat, cost]) => {
+                officeCategories[cat] = cost;
+            });
+
+            // Add direct field costs
+            Object.entries(categoryBreakdown.field).forEach(([cat, cost]) => {
+                fieldCategories[cat] = cost;
+            });
+
+            // Allocate shared costs
+            Object.entries(categoryBreakdown.shared).forEach(([cat, cost]) => {
+                const sharedToOffice = cost * sharedAllocation;
+                const sharedToField = cost * (1 - sharedAllocation);
+
+                officeCategories[cat] = (officeCategories[cat] || 0) + sharedToOffice;
+                fieldCategories[cat] = (fieldCategories[cat] || 0) + sharedToField;
+            });
+
+            // Convert to per-user costs
+            const officePerUserCategories = {};
+            const fieldPerUserCategories = {};
+
+            Object.entries(officeCategories).forEach(([cat, cost]) => {
+                officePerUserCategories[cat] = officeUsers > 0 ? cost / officeUsers : 0;
+            });
+
+            Object.entries(fieldCategories).forEach(([cat, cost]) => {
+                fieldPerUserCategories[cat] = fieldUsers > 0 ? cost / fieldUsers : 0;
+            });
+
+            // Get all unique categories
+            const allCategories = new Set([
+                ...Object.keys(officePerUserCategories),
+                ...Object.keys(fieldPerUserCategories)
+            ]);
+
+            // Sort categories by total spend
+            const sortedCategories = Array.from(allCategories).sort((a, b) => {
+                const totalA = (officePerUserCategories[a] || 0) + (fieldPerUserCategories[a] || 0);
+                const totalB = (officePerUserCategories[b] || 0) + (fieldPerUserCategories[b] || 0);
+                return totalB - totalA;
+            });
+
+            // Create datasets for each category
+            const datasets = sortedCategories.map((category, index) => {
+                const colors = generateColors(sortedCategories.length);
+                return {
+                    label: category,
+                    data: [
+                        officePerUserCategories[category] || 0,
+                        fieldPerUserCategories[category] || 0
+                    ],
+                    backgroundColor: colors[index],
+                    borderWidth: 1,
+                    borderColor: '#ffffff'
+                };
+            });
+
+            charts.perUserBreakdown = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Office User', 'Field User'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' +
+                                           context.parsed.x.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                },
+                                footer: function(tooltipItems) {
+                                    const total = tooltipItems.reduce((sum, item) => sum + item.parsed.x, 0);
+                                    return 'Total: $' + total.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'k';
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true
                         }
                     }
                 }
