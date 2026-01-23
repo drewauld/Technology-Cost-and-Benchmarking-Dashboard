@@ -313,6 +313,69 @@
             margin: 0;
             color: var(--text-dark);
         }
+
+        /* Heatmap Styles */
+        .heatmap-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .heatmap-table th {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .heatmap-table th.category-header {
+            text-align: left;
+            padding-left: 1rem;
+            min-width: 200px;
+            position: sticky;
+            left: 0;
+            z-index: 11;
+        }
+
+        .heatmap-table td {
+            padding: 0;
+            text-align: center;
+            border: 1px solid #ffffff;
+        }
+
+        .heatmap-table td.category-label {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 700;
+            background-color: var(--light-gray);
+            position: sticky;
+            left: 0;
+            z-index: 9;
+            border-right: 2px solid var(--primary-navy);
+        }
+
+        .heatmap-cell {
+            padding: 1rem 0.5rem;
+            font-weight: 700;
+            color: var(--white);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -331,19 +394,19 @@
             <div class="inputs-grid">
                 <div class="input-group">
                     <label for="annualTurnover">Annual Turnover ($)</label>
-                    <input type="number" id="annualTurnover" value="50000000" min="0" step="100000">
+                    <input type="number" id="annualTurnover" value="140000000" min="0" step="100000">
                     <span class="help-text">Used to calculate IT spend as % of revenue</span>
                 </div>
 
                 <div class="input-group">
                     <label for="officeUsers">Office Users</label>
-                    <input type="number" id="officeUsers" value="150" min="0" step="1">
+                    <input type="number" id="officeUsers" value="200" min="0" step="1">
                     <span class="help-text">Knowledge workers with individual devices</span>
                 </div>
 
                 <div class="input-group">
                     <label for="fieldUsers">Field / Site Users</label>
-                    <input type="number" id="fieldUsers" value="50" min="0" step="1">
+                    <input type="number" id="fieldUsers" value="200" min="0" step="1">
                     <span class="help-text">Operational staff with shared devices</span>
                 </div>
 
@@ -351,12 +414,6 @@
                     <label for="sites">Sites / Locations</label>
                     <input type="number" id="sites" value="5" min="1" step="1">
                     <span class="help-text">Physical locations requiring IT infrastructure</span>
-                </div>
-
-                <div class="input-group">
-                    <label for="sharedAllocation">Shared Cost Allocation (Office %)</label>
-                    <input type="number" id="sharedAllocation" value="50" min="0" max="100" step="5">
-                    <span class="help-text">% of shared costs allocated to office users</span>
                 </div>
 
                 <div class="input-group">
@@ -386,28 +443,70 @@
             </div>
         </div>
 
+        <!-- Spend per User (Unsegmented) -->
+        <div class="card">
+            <h2>Spend per User (Unsegmented)</h2>
+            <div class="info-banner">
+                <p>Simple normalization metric showing total IT spend divided by total users. Good early indicator of scale effects. Note: This metric should be segmented (office vs field) for more detailed analysis.</p>
+            </div>
+            <div class="chart-container" style="height: 300px;">
+                <canvas id="spendPerUserChart"></canvas>
+            </div>
+        </div>
+
         <!-- Per User Spend Breakdown -->
         <div class="card">
             <h2>IT Spend per User - Category Breakdown</h2>
+            <div class="filter-controls">
+                <button id="categoryL1Btn" onclick="updateCategoryBreakdown(1)">Category L1</button>
+                <button id="categoryL2Btn" onclick="updateCategoryBreakdown(2)" style="background-color: var(--primary-navy); color: var(--white);">Category L2</button>
+                <button id="categoryL3Btn" onclick="updateCategoryBreakdown(3)">Category L3</button>
+            </div>
             <div class="chart-container" style="height: 500px;">
                 <canvas id="perUserBreakdownChart"></canvas>
             </div>
         </div>
 
-        <!-- Breakdown Charts -->
-        <div class="charts-row">
-            <div class="card">
-                <h2>Spend by Category Level 2</h2>
-                <div class="chart-container">
-                    <canvas id="categoryChart"></canvas>
-                </div>
+        <!-- Breakdown Charts (Full Width) -->
+        <div class="card">
+            <h2>Spend by Top Vendors</h2>
+            <div class="chart-container">
+                <canvas id="vendorChart"></canvas>
             </div>
+        </div>
 
-            <div class="card">
-                <h2>Spend by Top Vendors</h2>
-                <div class="chart-container">
-                    <canvas id="vendorChart"></canvas>
-                </div>
+        <div class="card">
+            <h2>Spend by Category Level 2</h2>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Spend Distribution (Pareto / 80-20) -->
+        <div class="card">
+            <h2>Spend Distribution (Pareto / 80-20)</h2>
+            <div class="info-banner">
+                <p>Shows how much of total spend is locked into a small number of items. Prevents wasted effort on low-impact cost lines. Common outcome: 70-80% of spend sits in 20-30% of line items.</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="paretoChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Cost Heatmap (Category × Time) -->
+        <div class="card">
+            <h2>Cost Heatmap (Category × Time)</h2>
+            <div class="info-banner">
+                <p>Highlights cost creep, sudden changes, and areas that never go down. This is an analyst favourite and an exec sleeper hit.</p>
+            </div>
+            <div class="filter-controls">
+                <button id="heatmapL1Btn" onclick="updateHeatmap(1)" style="background-color: var(--primary-navy); color: var(--white);">Category L1</button>
+                <button id="heatmapL2Btn" onclick="updateHeatmap(2)">Category L2</button>
+            </div>
+            <div class="heatmap-container">
+                <table class="heatmap-table" id="heatmapTable">
+                    <!-- Heatmap will be populated here -->
+                </table>
             </div>
         </div>
 
@@ -459,6 +558,8 @@
         // Global data storage
         let spendData = [];
         let charts = {};
+        let selectedCategoryLevel = 2; // Default to Category Level 2
+        let heatmapCategoryLevel = 1; // Default to Category Level 1 for heatmap
 
         // Classification rules for Office vs Field vs Shared
         const classificationRules = {
@@ -535,11 +636,12 @@
             populateFilters();
             calculateAndDisplayKPIs();
             createCharts();
+            createHeatmap();
             populateDataTable();
 
             // Add event listeners for inputs
             const inputs = ['annualTurnover', 'officeUsers', 'fieldUsers', 'sites',
-                          'sharedAllocation', 'benchmarkRevenue', 'benchmarkPerUser'];
+                          'benchmarkRevenue', 'benchmarkPerUser'];
             inputs.forEach(id => {
                 document.getElementById(id).addEventListener('input', () => {
                     calculateAndDisplayKPIs();
@@ -626,7 +728,7 @@
         function calculateUserSplits() {
             const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
             const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
-            const sharedAllocation = parseFloat(document.getElementById('sharedAllocation').value) / 100;
+            const sharedAllocation = 0.50; // Default 50% allocation to office users
 
             let officeCosts = 0;
             let fieldCosts = 0;
@@ -662,6 +764,27 @@
             };
         }
 
+        // Calculate top 5 vendor concentration
+        function calculateTop5VendorConcentration() {
+            const vendorTotals = {};
+            spendData.forEach(row => {
+                const vendor = row['Vendor'] || 'Unknown';
+                const monthlyValues = getMonthlyValues(row);
+                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
+            });
+
+            const sortedVendors = Object.entries(vendorTotals)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const top5Total = sortedVendors.reduce((sum, [, total]) => sum + total, 0);
+            const totalSpend = calculateTotalSpend();
+            const percentage = totalSpend > 0 ? (top5Total / totalSpend) * 100 : 0;
+
+            return percentage;
+        }
+
         // Calculate and display KPIs
         function calculateAndDisplayKPIs() {
             const annualTurnover = parseFloat(document.getElementById('annualTurnover').value) || 0;
@@ -675,8 +798,7 @@
             const totalUsers = officeUsers + fieldUsers;
             const spendAsPercentRevenue = annualTurnover > 0 ? (totalSpend / annualTurnover) * 100 : 0;
             const blendedPerUser = totalUsers > 0 ? totalSpend / totalUsers : 0;
-            const perSite = totalSpend / sites;
-            const userSplits = calculateUserSplits();
+            const top5Concentration = calculateTop5VendorConcentration();
             const workforceMix = totalUsers > 0 ? {
                 officePercent: (officeUsers / totalUsers) * 100,
                 fieldPercent: (fieldUsers / totalUsers) * 100
@@ -703,21 +825,9 @@
                 </div>
 
                 <div class="kpi-card">
-                    <div class="kpi-label">IT Spend per Office User</div>
-                    <div class="kpi-value">$${userSplits.officePerUser.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-                    <div class="kpi-comparison">${officeUsers} office users</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-label">IT Spend per Field User</div>
-                    <div class="kpi-value">$${userSplits.fieldPerUser.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-                    <div class="kpi-comparison">${fieldUsers} field users</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-label">IT Spend per Site</div>
-                    <div class="kpi-value">$${perSite.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-                    <div class="kpi-comparison">${sites} sites / locations</div>
+                    <div class="kpi-label">Top 5 Vendor Concentration</div>
+                    <div class="kpi-value">${top5Concentration.toFixed(0)}%</div>
+                    <div class="kpi-comparison">Top 5 vendors = ${top5Concentration.toFixed(0)}% of total spend</div>
                 </div>
 
                 <div class="kpi-card">
@@ -739,9 +849,11 @@
         // Create all charts
         function createCharts() {
             createTrendChart();
+            createSpendPerUserChart();
             createPerUserBreakdownChart();
             createCategoryChart();
             createVendorChart();
+            createParetoChart();
             createRGTChart();
         }
 
@@ -749,6 +861,72 @@
         function updateCharts() {
             Object.values(charts).forEach(chart => chart.destroy());
             createCharts();
+        }
+
+        // Create spend per user (unsegmented) chart
+        function createSpendPerUserChart() {
+            const ctx = document.getElementById('spendPerUserChart').getContext('2d');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
+            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
+            const totalUsers = officeUsers + fieldUsers;
+
+            // Calculate monthly totals
+            const monthlyTotals = calculateMonthlyTotals();
+
+            // Calculate per-user spend for each month
+            const perUserData = monthlyTotals.map(total =>
+                totalUsers > 0 ? total / totalUsers : 0
+            );
+
+            charts.spendPerUser = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Spend per User',
+                        data: perUserData,
+                        borderColor: '#092c50',
+                        backgroundColor: 'rgba(9, 44, 80, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#092c50',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Per User: $' + context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(1) + 'k';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // Create trend chart
@@ -841,9 +1019,12 @@
             const ctx = document.getElementById('perUserBreakdownChart').getContext('2d');
             const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
             const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
-            const sharedAllocation = parseFloat(document.getElementById('sharedAllocation').value) / 100;
+            const sharedAllocation = 0.50; // Default 50% allocation to office users
 
-            // Aggregate costs by category L1 for office, field, and shared
+            // Determine which category field to use
+            const categoryField = 'Category Level ' + selectedCategoryLevel;
+
+            // Aggregate costs by selected category level for office, field, and shared
             const categoryBreakdown = {
                 office: {},
                 field: {},
@@ -851,7 +1032,7 @@
             };
 
             spendData.forEach(row => {
-                const category = row['Category Level 1'] || 'Unknown';
+                const category = row[categoryField] || 'Unknown';
                 const monthlyValues = getMonthlyValues(row);
                 const total = monthlyValues.reduce((sum, val) => sum + val, 0);
                 const classification = classifyCost(row);
@@ -1104,6 +1285,140 @@
             });
         }
 
+        // Create Pareto chart (80-20 distribution)
+        function createParetoChart() {
+            const ctx = document.getElementById('paretoChart').getContext('2d');
+
+            // Aggregate all spend items by Category L3 + Vendor
+            const items = [];
+            spendData.forEach(row => {
+                const itemName = (row['Category Level 3'] || row['Category Level 2'] || 'Unknown') +
+                               ' - ' + (row['Vendor'] || 'Unknown');
+                const monthlyValues = getMonthlyValues(row);
+                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+
+                if (total > 0) {
+                    items.push({ name: itemName, total: total });
+                }
+            });
+
+            // Sort by total spend descending
+            items.sort((a, b) => b.total - a.total);
+
+            // Calculate cumulative percentages
+            const totalSpend = items.reduce((sum, item) => sum + item.total, 0);
+            let cumulative = 0;
+            const cumulativePercentages = items.map(item => {
+                cumulative += item.total;
+                return (cumulative / totalSpend) * 100;
+            });
+
+            // Take top 20 items for readability
+            const topItems = items.slice(0, 20);
+            const topCumulative = cumulativePercentages.slice(0, 20);
+
+            charts.pareto = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: topItems.map(item => item.name),
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Annual Spend',
+                            data: topItems.map(item => item.total),
+                            backgroundColor: '#8bd8bd',
+                            borderColor: '#092c50',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            type: 'line',
+                            label: 'Cumulative %',
+                            data: topCumulative,
+                            borderColor: '#092c50',
+                            backgroundColor: 'rgba(9, 44, 80, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.type === 'bar') {
+                                        return 'Spend: $' + context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                    } else {
+                                        return 'Cumulative: ' + context.parsed.y.toFixed(1) + '%';
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: 90,
+                                minRotation: 45,
+                                font: {
+                                    size: 9
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000).toFixed(0) + 'k';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Annual Spend ($)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0) + '%';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Cumulative %'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // Create Run/Grow/Transform chart
         function createRGTChart() {
             const ctx = document.getElementById('rgtChart').getContext('2d');
@@ -1240,6 +1555,121 @@
             document.getElementById('filterL2').value = '';
             document.getElementById('filterVendor').value = '';
             populateDataTable();
+        }
+
+        // Update category breakdown chart based on selected level
+        function updateCategoryBreakdown(level) {
+            selectedCategoryLevel = level;
+
+            // Update button styles
+            ['categoryL1Btn', 'categoryL2Btn', 'categoryL3Btn'].forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btnId === 'categoryL' + level + 'Btn') {
+                    btn.style.backgroundColor = 'var(--primary-navy)';
+                    btn.style.color = 'var(--white)';
+                } else {
+                    btn.style.backgroundColor = 'var(--accent-mint)';
+                    btn.style.color = 'var(--primary-navy)';
+                }
+            });
+
+            // Recreate the chart
+            if (charts.perUserBreakdown) {
+                charts.perUserBreakdown.destroy();
+            }
+            createPerUserBreakdownChart();
+        }
+
+        // Update heatmap based on selected category level
+        function updateHeatmap(level) {
+            heatmapCategoryLevel = level;
+
+            // Update button styles
+            ['heatmapL1Btn', 'heatmapL2Btn'].forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btnId === 'heatmapL' + level + 'Btn') {
+                    btn.style.backgroundColor = 'var(--primary-navy)';
+                    btn.style.color = 'var(--white)';
+                } else {
+                    btn.style.backgroundColor = 'var(--accent-mint)';
+                    btn.style.color = 'var(--primary-navy)';
+                }
+            });
+
+            // Recreate the heatmap
+            createHeatmap();
+        }
+
+        // Create heatmap visualization
+        function createHeatmap() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const categoryField = 'Category Level ' + heatmapCategoryLevel;
+
+            // Aggregate data by category and month
+            const categoryMonthData = {};
+            spendData.forEach(row => {
+                const category = row[categoryField] || 'Unknown';
+                if (!categoryMonthData[category]) {
+                    categoryMonthData[category] = new Array(12).fill(0);
+                }
+
+                const monthlyValues = getMonthlyValues(row);
+                monthlyValues.forEach((val, idx) => {
+                    categoryMonthData[category][idx] += val;
+                });
+            });
+
+            // Sort categories by total spend
+            const sortedCategories = Object.entries(categoryMonthData)
+                .map(([category, values]) => ({
+                    category,
+                    values,
+                    total: values.reduce((sum, val) => sum + val, 0)
+                }))
+                .sort((a, b) => b.total - a.total);
+
+            // Find max value for color scaling
+            let maxValue = 0;
+            sortedCategories.forEach(cat => {
+                cat.values.forEach(val => {
+                    if (val > maxValue) maxValue = val;
+                });
+            });
+
+            // Generate heatmap HTML
+            let html = '<thead><tr><th class="category-header">Category</th>';
+            months.forEach(month => {
+                html += `<th>${month}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            sortedCategories.forEach(cat => {
+                html += `<tr><td class="category-label">${cat.category}</td>`;
+                cat.values.forEach(value => {
+                    const intensity = maxValue > 0 ? value / maxValue : 0;
+                    const color = getHeatmapColor(intensity);
+                    const displayValue = value >= 1000 ? '$' + (value / 1000).toFixed(0) + 'k' : '$' + value.toFixed(0);
+                    html += `<td><div class="heatmap-cell" style="background-color: ${color};" title="$${value.toLocaleString(undefined, {maximumFractionDigits: 0})}">${displayValue}</div></td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody>';
+            document.getElementById('heatmapTable').innerHTML = html;
+        }
+
+        // Get heatmap color based on intensity (0-1)
+        function getHeatmapColor(intensity) {
+            // Color gradient from light mint to dark navy
+            const lightColor = { r: 139, g: 216, b: 189 }; // #8bd8bd
+            const darkColor = { r: 9, g: 44, b: 80 };      // #092c50
+
+            const r = Math.round(lightColor.r + (darkColor.r - lightColor.r) * intensity);
+            const g = Math.round(lightColor.g + (darkColor.g - lightColor.g) * intensity);
+            const b = Math.round(lightColor.b + (darkColor.b - lightColor.b) * intensity);
+
+            return `rgb(${r}, ${g}, ${b})`;
         }
 
         // Initialize on page load
