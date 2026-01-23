@@ -754,46 +754,46 @@
         // Create trend chart
         function createTrendChart() {
             const ctx = document.getElementById('trendChart').getContext('2d');
-            const monthlyTotals = calculateMonthlyTotals();
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                           'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-            const benchmarkPerUser = parseFloat(document.getElementById('benchmarkPerUser').value) || 0;
-            const totalUsers = (parseFloat(document.getElementById('officeUsers').value) || 0) +
-                             (parseFloat(document.getElementById('fieldUsers').value) || 0);
-            const benchmarkMonthly = totalUsers > 0 ? (benchmarkPerUser * totalUsers) / 12 : 0;
+            // Calculate monthly totals by Category Level 1
+            const itFundamentalsData = new Array(12).fill(0);
+            const lobApplicationsData = new Array(12).fill(0);
 
-            // Calculate dynamic scale based on data
-            const minValue = Math.min(...monthlyTotals);
-            const maxValue = Math.max(...monthlyTotals);
-            const range = maxValue - minValue;
+            spendData.forEach(row => {
+                const category = row['Category Level 1'] || '';
+                const monthlyValues = getMonthlyValues(row);
 
-            // Add 10% padding below min and above max
-            const paddedMin = Math.max(0, minValue - (range * 0.1));
-            const paddedMax = maxValue + (range * 0.1);
+                if (category === 'IT Fundamentals (Infrastructure)') {
+                    monthlyValues.forEach((val, idx) => {
+                        itFundamentalsData[idx] += val;
+                    });
+                } else if (category === 'Line of Business Applications') {
+                    monthlyValues.forEach((val, idx) => {
+                        lobApplicationsData[idx] += val;
+                    });
+                }
+            });
 
             charts.trend = new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: months,
                     datasets: [
                         {
-                            label: 'Actual Spend',
-                            data: monthlyTotals,
-                            borderColor: '#092c50',
-                            backgroundColor: 'rgba(9, 44, 80, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.3,
-                            fill: true
+                            label: 'IT Fundamentals (Infrastructure)',
+                            data: itFundamentalsData,
+                            backgroundColor: '#092c50',
+                            borderWidth: 1,
+                            borderColor: '#ffffff'
                         },
                         {
-                            label: 'Benchmark (P75)',
-                            data: new Array(12).fill(benchmarkMonthly),
-                            borderColor: '#8bd8bd',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            tension: 0,
-                            fill: false
+                            label: 'Line of Business Applications',
+                            data: lobApplicationsData,
+                            backgroundColor: '#8bd8bd',
+                            borderWidth: 1,
+                            borderColor: '#ffffff'
                         }
                     ]
                 },
@@ -810,14 +810,21 @@
                                 label: function(context) {
                                     return context.dataset.label + ': $' +
                                            context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                },
+                                footer: function(tooltipItems) {
+                                    const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
+                                    return 'Total: $' + total.toLocaleString(undefined, {maximumFractionDigits: 0});
                                 }
                             }
                         }
                     },
                     scales: {
+                        x: {
+                            stacked: true
+                        },
                         y: {
-                            min: paddedMin,
-                            max: paddedMax,
+                            stacked: true,
+                            beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
                                     return '$' + (value / 1000).toFixed(0) + 'k';
