@@ -814,8 +814,8 @@
 
                 <div class="kpi-card">
                     <div class="kpi-label">IT Spend as % of Revenue</div>
-                    <div class="kpi-value">${(spendAsPercentRevenue / 100).toFixed(2)}%</div>
-                    <div class="kpi-comparison">Benchmark: ${benchmarkRevenue}% | ${(spendAsPercentRevenue / 100) > benchmarkRevenue ? 'Above' : 'Below'}</div>
+                    <div class="kpi-value">${spendAsPercentRevenue.toFixed(2)}%</div>
+                    <div class="kpi-comparison">Benchmark: ${benchmarkRevenue}% | ${spendAsPercentRevenue > benchmarkRevenue ? 'Above' : 'Below'}</div>
                 </div>
 
                 <div class="kpi-card">
