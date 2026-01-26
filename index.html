@@ -1181,6 +1181,9 @@
             // Generate colors
             const colors = generateColors(labels.length);
 
+            // Calculate total for percentages
+            const grandTotal = data.reduce((sum, val) => sum + val, 0);
+
             charts.category = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -1202,6 +1205,23 @@
                                 boxWidth: 12,
                                 font: {
                                     size: 11
+                                },
+                                generateLabels: function(chart) {
+                                    const dataset = chart.data.datasets[0];
+                                    const total = dataset.data.reduce((sum, val) => sum + val, 0);
+                                    return chart.data.labels.map((label, i) => {
+                                        const value = dataset.data[i];
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        const formattedValue = '$' + value.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                        return {
+                                            text: `${label}: ${formattedValue} (${percentage}%)`,
+                                            fillStyle: dataset.backgroundColor[i],
+                                            strokeStyle: dataset.borderColor,
+                                            lineWidth: dataset.borderWidth,
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
                                 }
                             }
                         },
