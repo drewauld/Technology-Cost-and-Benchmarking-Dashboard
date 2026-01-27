@@ -376,6 +376,58 @@
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
+
+        /* Drill-down Navigation Styles */
+        .drill-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+        }
+
+        .drill-back-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-navy);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .drill-back-btn:hover {
+            background-color: #0a3d6b;
+        }
+
+        .drill-breadcrumb {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .drill-breadcrumb .level {
+            color: var(--text-light);
+        }
+
+        .drill-breadcrumb .current {
+            font-weight: 700;
+            color: var(--primary-navy);
+        }
+
+        .drill-hint {
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .drill-hint p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -477,8 +529,17 @@
 
         <div class="card">
             <h2>Spend by Category Level 2</h2>
+            <div id="categoryDrillNav" class="drill-nav" style="display: none;">
+                <button id="categoryBackBtn" onclick="categoryDrillBack()" class="drill-back-btn">
+                    ← Back
+                </button>
+                <span id="categoryBreadcrumb" class="drill-breadcrumb"></span>
+            </div>
             <div class="chart-container">
                 <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="drill-hint" id="categoryDrillHint">
+                <p>Click on a segment to drill down into sub-categories</p>
             </div>
         </div>
 
@@ -560,6 +621,14 @@
         let charts = {};
         let selectedCategoryLevel = 2; // Default to Category Level 2
         let heatmapCategoryLevel = 1; // Default to Category Level 1 for heatmap
+
+        // Category chart drill-down state
+        let categoryDrillState = {
+            level: 2,              // Current drill level: 2 = Category L2, 3 = Category L3, 4 = Vendor
+            path: [],              // Navigation path: [{level: 2, label: 'All'}, {level: 3, label: 'Networks & Connectivity'}, ...]
+            filterCategory2: null, // Selected Category L2 filter
+            filterCategory3: null  // Selected Category L3 filter
+        };
 
         // Classification rules for Office vs Field vs Shared
         const classificationRules = {
@@ -860,6 +929,8 @@
         // Update all charts
         function updateCharts() {
             Object.values(charts).forEach(chart => chart.destroy());
+            // Reset category drill-down state when inputs change
+            resetCategoryDrillDown();
             createCharts();
         }
 
@@ -1160,18 +1231,34 @@
         // Create category breakdown chart
         function createCategoryChart() {
             const ctx = document.getElementById('categoryChart').getContext('2d');
+            const state = categoryDrillState;
 
-            // Aggregate by Category L2
-            const categoryTotals = {};
-            spendData.forEach(row => {
-                const category = row['Category Level 2'] || 'Unknown';
-                const monthlyValues = getMonthlyValues(row);
-                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+            let categoryTotals = {};
+            let chartTitle = '';
+            let canDrillDown = true;
 
-                categoryTotals[category] = (categoryTotals[category] || 0) + total;
-            });
+            // Determine data based on drill-down level
+            if (state.level === 2) {
+                // Show Category L2 breakdown (top level)
+                spendData.forEach(row => {
+                    const category = row['Category Level 2'] || 'Unknown';
+                    const monthlyValues = getMonthlyValues(row);
+                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                    categoryTotals[category] = (categoryTotals[category] || 0) + total;
+                });
+                chartTitle = 'Category Level 2';
+            } else if (state.level === 3) {
+                // Show Category L3 breakdown for selected Category L2
+                categoryTotals = getCategoryL3ForL2(state.filterCategory2);
+                chartTitle = state.filterCategory2 + ' - Sub-categories';
+            } else if (state.level === 4) {
+                // Show Vendor breakdown for selected Category L3
+                categoryTotals = getVendorsForL3(state.filterCategory2, state.filterCategory3);
+                chartTitle = state.filterCategory3 + ' - Vendors';
+                canDrillDown = false; // Deepest level
+            }
 
-            // Sort and get top categories
+            // Sort and get categories
             const sortedCategories = Object.entries(categoryTotals)
                 .sort((a, b) => b[1] - a[1]);
 
@@ -1183,6 +1270,9 @@
 
             // Calculate total for percentages
             const grandTotal = data.reduce((sum, val) => sum + val, 0);
+
+            // Update breadcrumb
+            updateCategoryBreadcrumb();
 
             charts.category = new Chart(ctx, {
                 type: 'doughnut',
@@ -1198,6 +1288,16 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: function(event, elements) {
+                        if (elements.length > 0 && canDrillDown) {
+                            const index = elements[0].index;
+                            const clickedLabel = labels[index];
+                            categoryChartDrillDown(clickedLabel);
+                        }
+                    },
+                    onHover: function(event, elements) {
+                        event.native.target.style.cursor = (elements.length > 0 && canDrillDown) ? 'pointer' : 'default';
+                    },
                     plugins: {
                         legend: {
                             position: 'right',
@@ -1223,6 +1323,13 @@
                                         };
                                     });
                                 }
+                            },
+                            onClick: function(e, legendItem, legend) {
+                                // Also enable drill-down from legend clicks
+                                if (canDrillDown) {
+                                    const clickedLabel = labels[legendItem.index];
+                                    categoryChartDrillDown(clickedLabel);
+                                }
                             }
                         },
                         tooltip: {
@@ -1230,9 +1337,13 @@
                                 label: function(context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return context.label + ': $' +
+                                    let tooltipText = context.label + ': $' +
                                            context.parsed.toLocaleString(undefined, {maximumFractionDigits: 0}) +
                                            ' (' + percentage + '%)';
+                                    if (canDrillDown) {
+                                        tooltipText += ' - Click to drill down';
+                                    }
+                                    return tooltipText;
                                 }
                             }
                         }
@@ -1493,6 +1604,151 @@
                 colors.push(baseColors[i % baseColors.length]);
             }
             return colors;
+        }
+
+        // Get Category L3 items for a specific Category L2
+        function getCategoryL3ForL2(category2) {
+            const categoryTotals = {};
+            spendData.forEach(row => {
+                if (row['Category Level 2'] === category2) {
+                    const category = row['Category Level 3'] || 'Unknown';
+                    const monthlyValues = getMonthlyValues(row);
+                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                    categoryTotals[category] = (categoryTotals[category] || 0) + total;
+                }
+            });
+            return categoryTotals;
+        }
+
+        // Get Vendors for a specific Category L2
+        function getVendorsForL2(category2) {
+            const vendorTotals = {};
+            spendData.forEach(row => {
+                if (row['Category Level 2'] === category2) {
+                    const vendor = row['Vendor'] || 'Unknown';
+                    const monthlyValues = getMonthlyValues(row);
+                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                    vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
+                }
+            });
+            return vendorTotals;
+        }
+
+        // Get Vendors for a specific Category L3 within a Category L2
+        function getVendorsForL3(category2, category3) {
+            const vendorTotals = {};
+            spendData.forEach(row => {
+                if (row['Category Level 2'] === category2 && row['Category Level 3'] === category3) {
+                    const vendor = row['Vendor'] || 'Unknown';
+                    const monthlyValues = getMonthlyValues(row);
+                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                    vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
+                }
+            });
+            return vendorTotals;
+        }
+
+        // Handle click on category chart segment to drill down
+        function categoryChartDrillDown(clickedLabel) {
+            const state = categoryDrillState;
+
+            if (state.level === 2) {
+                // Drill from Category L2 to Category L3
+                state.filterCategory2 = clickedLabel;
+                state.path.push({ level: 2, label: clickedLabel });
+                state.level = 3;
+            } else if (state.level === 3) {
+                // Drill from Category L3 to Vendor
+                state.filterCategory3 = clickedLabel;
+                state.path.push({ level: 3, label: clickedLabel });
+                state.level = 4;
+            }
+            // Level 4 (Vendor) is the deepest level - no further drill-down
+
+            // Update the chart
+            updateCategoryChartDrillDown();
+        }
+
+        // Go back one level in the drill-down
+        function categoryDrillBack() {
+            const state = categoryDrillState;
+
+            if (state.level === 3) {
+                // Go back to Category L2 view
+                state.level = 2;
+                state.filterCategory2 = null;
+                state.path.pop();
+            } else if (state.level === 4) {
+                // Go back to Category L3 view
+                state.level = 3;
+                state.filterCategory3 = null;
+                state.path.pop();
+            }
+
+            updateCategoryChartDrillDown();
+        }
+
+        // Reset drill-down to initial state
+        function resetCategoryDrillDown() {
+            categoryDrillState = {
+                level: 2,
+                path: [],
+                filterCategory2: null,
+                filterCategory3: null
+            };
+        }
+
+        // Update breadcrumb navigation
+        function updateCategoryBreadcrumb() {
+            const state = categoryDrillState;
+            const nav = document.getElementById('categoryDrillNav');
+            const breadcrumb = document.getElementById('categoryBreadcrumb');
+            const hint = document.getElementById('categoryDrillHint');
+
+            if (state.level === 2) {
+                // At top level - hide navigation, show hint
+                nav.style.display = 'none';
+                hint.style.display = 'block';
+                hint.innerHTML = '<p>Click on a segment to drill down into sub-categories</p>';
+            } else {
+                // Drilled down - show navigation
+                nav.style.display = 'flex';
+
+                let breadcrumbHtml = '<span class="level">All Categories</span>';
+
+                if (state.filterCategory2) {
+                    breadcrumbHtml += ' → <span class="' + (state.level === 3 ? 'current' : 'level') + '">' + state.filterCategory2 + '</span>';
+                }
+
+                if (state.filterCategory3) {
+                    breadcrumbHtml += ' → <span class="current">' + state.filterCategory3 + '</span>';
+                }
+
+                breadcrumb.innerHTML = breadcrumbHtml;
+
+                // Update hint based on level
+                if (state.level === 3) {
+                    hint.style.display = 'block';
+                    hint.innerHTML = '<p>Click on a segment to drill down to vendor level</p>';
+                } else if (state.level === 4) {
+                    hint.style.display = 'block';
+                    hint.innerHTML = '<p>Vendor level (deepest level)</p>';
+                }
+            }
+        }
+
+        // Update category chart based on drill-down state
+        function updateCategoryChartDrillDown() {
+            // Destroy existing chart
+            if (charts.category) {
+                charts.category.destroy();
+            }
+
+            // Update breadcrumb
+            updateCategoryBreadcrumb();
+
+            // Recreate chart with appropriate data
+            createCategoryChart();
         }
 
         // Populate filter dropdowns
