@@ -1460,7 +1460,8 @@
                             backgroundColor: '#8bd8bd',
                             borderColor: '#092c50',
                             borderWidth: 1,
-                            yAxisID: 'y'
+                            yAxisID: 'y',
+                            order: 2  // Higher order = drawn first (behind)
                         },
                         {
                             type: 'line',
@@ -1473,7 +1474,11 @@
                             tension: 0.4,
                             pointRadius: 4,
                             pointHoverRadius: 6,
-                            yAxisID: 'y1'
+                            pointBackgroundColor: '#092c50',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y1',
+                            order: 1  // Lower order = drawn last (on top)
                         }
                     ]
                 },
