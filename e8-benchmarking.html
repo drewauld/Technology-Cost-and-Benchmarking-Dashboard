@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essential 8 Maturity Benchmarking | TechElevate</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary-navy: #092c50;
+            --accent-mint: #8bd8bd;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --border-gray: #e0e0e0;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --maturity-0: #dc3545;
+            --maturity-1: #fd7e14;
+            --maturity-2: #ffc107;
+            --maturity-3: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            color: var(--primary-navy);
+        }
+
+        .header {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            color: var(--white);
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header .subtitle {
+            color: var(--accent-mint);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: #6fc4a8;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--accent-mint);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-banner {
+            background-color: rgba(139, 216, 189, 0.2);
+            border-left: 4px solid var(--accent-mint);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-banner p {
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card.highlight {
+            background: linear-gradient(135deg, var(--accent-mint) 0%, #6fc4a8 100%);
+            color: var(--primary-navy);
+        }
+
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #fd7e14 0%, #e06500 100%);
+            color: var(--white);
+        }
+
+        .kpi-card.success {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: var(--white);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+        }
+
+        .kpi-comparison {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        /* Assessment Grid */
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .control-card {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 1.25rem;
+            border-left: 4px solid var(--primary-navy);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .control-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .control-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: var(--primary-navy);
+            color: var(--white);
+            border-radius: 50%;
+            font-weight: 900;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .control-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            color: var(--primary-navy);
+        }
+
+        .control-info p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .maturity-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .maturity-option {
+            flex: 1;
+            min-width: 60px;
+        }
+
+        .maturity-option input[type="radio"] {
+            display: none;
+        }
+
+        .maturity-option label {
+            display: block;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            border: 2px solid var(--border-gray);
+            background-color: var(--white);
+        }
+
+        .maturity-option input[type="radio"]:checked + label {
+            border-color: transparent;
+            color: var(--white);
+            transform: scale(1.02);
+        }
+
+        .maturity-option.level-0 input[type="radio"]:checked + label {
+            background-color: var(--maturity-0);
+        }
+
+        .maturity-option.level-1 input[type="radio"]:checked + label {
+            background-color: var(--maturity-1);
+        }
+
+        .maturity-option.level-2 input[type="radio"]:checked + label {
+            background-color: var(--maturity-2);
+            color: var(--text-dark);
+        }
+
+        .maturity-option.level-3 input[type="radio"]:checked + label {
+            background-color: var(--maturity-3);
+        }
+
+        .maturity-option label:hover {
+            border-color: var(--primary-navy);
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Gap Analysis Table */
+        .gap-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .gap-table th {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .gap-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .gap-table tbody tr:hover {
+            background-color: rgba(139, 216, 189, 0.1);
+        }
+
+        .maturity-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .maturity-badge.level-0 {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--maturity-0);
+        }
+
+        .maturity-badge.level-1 {
+            background-color: rgba(253, 126, 20, 0.15);
+            color: var(--maturity-1);
+        }
+
+        .maturity-badge.level-2 {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #b38600;
+        }
+
+        .maturity-badge.level-3 {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--maturity-3);
+        }
+
+        .gap-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gap-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .gap-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .gap-fill.positive {
+            background-color: var(--maturity-3);
+        }
+
+        .gap-fill.negative {
+            background-color: var(--maturity-0);
+        }
+
+        .gap-fill.neutral {
+            background-color: var(--accent-mint);
+        }
+
+        .gap-text {
+            font-weight: 700;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .gap-text.positive {
+            color: var(--maturity-3);
+        }
+
+        .gap-text.negative {
+            color: var(--maturity-0);
+        }
+
+        .gap-text.neutral {
+            color: var(--text-light);
+        }
+
+        /* Recommendations */
+        .recommendations-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .recommendations-list li {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            border-left: 4px solid var(--maturity-0);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .recommendations-list li.priority-high {
+            border-left-color: var(--maturity-0);
+        }
+
+        .recommendations-list li.priority-medium {
+            border-left-color: var(--maturity-1);
+        }
+
+        .recommendations-list li.priority-low {
+            border-left-color: var(--maturity-2);
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .priority-badge.high {
+            background-color: var(--maturity-0);
+            color: var(--white);
+        }
+
+        .priority-badge.medium {
+            background-color: var(--maturity-1);
+            color: var(--white);
+        }
+
+        .priority-badge.low {
+            background-color: var(--maturity-2);
+            color: var(--text-dark);
+        }
+
+        .recommendation-content h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .recommendation-content p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        /* Industry Selector */
+        .industry-selector {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .industry-selector select {
+            padding: 0.75rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            background-color: var(--white);
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            min-width: 250px;
+        }
+
+        .industry-selector select:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .assessment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .maturity-option {
+                min-width: 45px;
+            }
+
+            .maturity-option label {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Legend for charts */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        /* Target level indicator */
+        .target-level {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background-color: rgba(139, 216, 189, 0.15);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .target-level label {
+            font-weight: 700;
+            color: var(--primary-navy);
+        }
+
+        .target-level select {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--accent-mint);
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            background-color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>Essential 8 Maturity Benchmarking</h1>
+                <p class="subtitle">TechElevate | Cybersecurity Maturity Assessment</p>
+            </div>
+            <a href="index.html" class="nav-link">
+                <span>&larr;</span> Technology Cost Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="card">
+            <h2>About the Essential 8</h2>
+            <div class="info-banner">
+                <p>The Essential 8 is a set of baseline cybersecurity mitigation strategies developed by the Australian Cyber Security Centre (ACSC). These strategies are designed to protect organisations against various cyber threats and are prioritised based on their effectiveness at mitigating targeted cyber intrusions and ransomware.</p>
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-light);">Maturity levels range from <strong>Level 0</strong> (not implemented) to <strong>Level 3</strong> (fully mature). Complete the assessment below to understand your current position and how you compare against industry peers.</p>
+        </div>
+
+        <!-- Industry & Target Selection -->
+        <div class="card">
+            <h2>Benchmark Configuration</h2>
+            <div class="industry-selector">
+                <div>
+                    <label for="industrySelect" style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-navy);">Industry Sector</label>
+                    <select id="industrySelect" onchange="updateBenchmarks()">
+                        <option value="all">All Industries (Average)</option>
+                        <option value="financial">Financial Services</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="government">Government</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="retail">Retail</option>
+                        <option value="technology">Technology</option>
+                        <option value="utilities">Utilities & Energy</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="orgSizeSelect" style="display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-navy);">Organisation Size</label>
+                    <select id="orgSizeSelect" onchange="updateBenchmarks()">
+                        <option value="all">All Sizes</option>
+                        <option value="small">Small (1-50 employees)</option>
+                        <option value="medium">Medium (51-500 employees)</option>
+                        <option value="large">Large (500+ employees)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="target-level">
+                <label for="targetLevel">Target Maturity Level:</label>
+                <select id="targetLevel" onchange="updateCharts()">
+                    <option value="1">Level 1 - Basic</option>
+                    <option value="2" selected>Level 2 - Intermediate</option>
+                    <option value="3">Level 3 - Advanced</option>
+                </select>
+                <span style="color: var(--text-light); font-size: 0.85rem;">ACSC recommends Level 2 minimum for most organisations</span>
+            </div>
+        </div>
+
+        <!-- Self Assessment -->
+        <div class="card">
+            <h2>Self Assessment</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-light);">Select your current maturity level for each of the Essential 8 controls. The assessment will automatically update to show your position against peers.</p>
+
+            <div class="assessment-grid" id="assessmentGrid">
+                <!-- Controls will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- KPI Summary -->
+        <div class="kpi-grid" id="kpiGrid">
+            <!-- KPIs will be dynamically generated -->
+        </div>
+
+        <!-- Visualizations Row -->
+        <div class="charts-row">
+            <div class="card">
+                <h2>Maturity Profile</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(9, 44, 80, 0.7);"></div>
+                        <span>Your Organisation</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(139, 216, 189, 0.7);"></div>
+                        <span>Industry Benchmark</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Control Comparison</h2>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gap Analysis -->
+        <div class="card">
+            <h2>Gap Analysis</h2>
+            <div class="info-banner">
+                <p>This analysis shows the gap between your current maturity level and both the industry benchmark and your target level. Negative gaps indicate areas requiring improvement.</p>
+            </div>
+            <table class="gap-table" id="gapTable">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Control</th>
+                        <th style="width: 15%;">Current</th>
+                        <th style="width: 15%;">Benchmark</th>
+                        <th style="width: 15%;">Target</th>
+                        <th style="width: 25%;">Gap to Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Maturity Distribution -->
+        <div class="card">
+            <h2>Industry Maturity Distribution</h2>
+            <div class="info-banner">
+                <p>See how organisations in your industry are distributed across maturity levels for each control.</p>
+            </div>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card">
+            <h2>Prioritised Recommendations</h2>
+            <div class="info-banner">
+                <p>Based on your assessment results, here are the recommended actions to improve your Essential 8 maturity, ordered by priority and potential impact.</p>
+            </div>
+            <ul class="recommendations-list" id="recommendationsList">
+                <!-- Populated by JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Essential 8 Controls Data
+        const e8Controls = [
+            {
+                id: 1,
+                name: 'Application Control',
+                description: 'Prevent execution of unapproved/malicious programs including .exe, DLL, scripts and installers.',
+                recommendations: {
+                    0: 'Implement application whitelisting on critical systems. Start with servers before workstations.',
+                    1: 'Extend application control to all workstations. Block execution from user-writable directories.',
+                    2: 'Implement Microsoft Defender Application Control or similar enterprise solution with centralized management.',
+                    3: 'Continuously monitor and refine application control rules. Implement automated rule generation.'
+                }
+            },
+            {
+                id: 2,
+                name: 'Patch Applications',
+                description: 'Patch/mitigate computers with extreme risk vulnerabilities within 48 hours.',
+                recommendations: {
+                    0: 'Establish an inventory of all applications. Implement basic patch management for critical apps.',
+                    1: 'Automate patching for common applications (browsers, PDF readers, Office). Define SLAs for patching.',
+                    2: 'Implement vulnerability scanning and prioritization. Patch extreme risk vulnerabilities within 48 hours.',
+                    3: 'Automate end-to-end vulnerability detection and patching. Implement real-time compliance monitoring.'
+                }
+            },
+            {
+                id: 3,
+                name: 'Configure Microsoft Office Macro Settings',
+                description: 'Block macros from the internet, and only allow vetted macros in trusted locations.',
+                recommendations: {
+                    0: 'Disable macros by default in Microsoft Office. Block macros from the internet.',
+                    1: 'Configure macro settings via Group Policy. Enable macro execution only for vetted users.',
+                    2: 'Implement trusted locations for approved macros. Use digitally signed macros only.',
+                    3: 'Block all macros except digitally signed by trusted publishers. Monitor macro execution attempts.'
+                }
+            },
+            {
+                id: 4,
+                name: 'User Application Hardening',
+                description: 'Configure web browsers to block Flash, ads, and Java on the internet.',
+                recommendations: {
+                    0: 'Disable Flash, Java, and unnecessary browser plugins. Configure basic browser security settings.',
+                    1: 'Implement browser policies to block risky content. Enable built-in browser protections.',
+                    2: 'Deploy enterprise browser configuration with content filtering. Block ads and malicious sites.',
+                    3: 'Implement browser isolation for high-risk activities. Continuous monitoring of browser security.'
+                }
+            },
+            {
+                id: 5,
+                name: 'Restrict Administrative Privileges',
+                description: 'Limit administrative access, use just-in-time administration, and regularly revalidate access.',
+                recommendations: {
+                    0: 'Audit all administrative accounts. Remove unnecessary admin privileges from users.',
+                    1: 'Implement separate admin accounts. Use privileged access workstations for admin tasks.',
+                    2: 'Implement just-in-time administration. Regular access reviews and certification.',
+                    3: 'Deploy privileged access management (PAM) solution. Implement continuous monitoring of privileged actions.'
+                }
+            },
+            {
+                id: 6,
+                name: 'Patch Operating Systems',
+                description: 'Patch/mitigate computers with extreme risk vulnerabilities within 48 hours.',
+                recommendations: {
+                    0: 'Establish OS inventory. Implement basic Windows Update/WSUS for patch management.',
+                    1: 'Automate OS patching with defined maintenance windows. Track patch compliance.',
+                    2: 'Patch extreme risk vulnerabilities within 48 hours. Use vulnerability prioritization.',
+                    3: 'Achieve near real-time patching capability. Automate detection and remediation pipeline.'
+                }
+            },
+            {
+                id: 7,
+                name: 'Multi-factor Authentication',
+                description: 'Implement MFA for VPNs, RDP, SSH and other remote access, and for all users on important systems.',
+                recommendations: {
+                    0: 'Implement MFA for remote access (VPN, RDP). Start with privileged users.',
+                    1: 'Extend MFA to all remote access scenarios and cloud services. Use phishing-resistant MFA.',
+                    2: 'Implement MFA for all critical systems and applications. Enforce MFA for administrators.',
+                    3: 'Universal MFA coverage with phishing-resistant methods. Continuous authentication for sensitive actions.'
+                }
+            },
+            {
+                id: 8,
+                name: 'Regular Backups',
+                description: 'Perform backups, test restoration, and maintain offline copies of important data.',
+                recommendations: {
+                    0: 'Implement regular backup schedule for critical systems. Store backups offsite.',
+                    1: 'Automate backups with defined RPO/RTO. Test restoration quarterly.',
+                    2: 'Implement immutable/offline backups. Monthly restoration tests. Document procedures.',
+                    3: 'Air-gapped backup infrastructure. Automated integrity verification. Real-time replication for critical systems.'
+                }
+            }
+        ];
+
+        // Industry benchmark data (simulated)
+        const industryBenchmarks = {
+            all: {
+                all: [1.8, 1.9, 2.0, 1.7, 1.6, 1.8, 2.1, 1.9],
+                small: [1.2, 1.3, 1.5, 1.2, 1.0, 1.3, 1.5, 1.4],
+                medium: [1.8, 1.9, 2.0, 1.7, 1.6, 1.8, 2.0, 1.9],
+                large: [2.3, 2.4, 2.5, 2.2, 2.1, 2.3, 2.6, 2.4]
+            },
+            financial: {
+                all: [2.4, 2.5, 2.6, 2.3, 2.2, 2.4, 2.7, 2.5],
+                small: [1.8, 1.9, 2.0, 1.7, 1.6, 1.8, 2.1, 1.9],
+                medium: [2.3, 2.4, 2.5, 2.2, 2.1, 2.3, 2.6, 2.4],
+                large: [2.7, 2.8, 2.9, 2.6, 2.5, 2.7, 2.9, 2.8]
+            },
+            healthcare: {
+                all: [1.9, 2.0, 2.1, 1.8, 1.7, 1.9, 2.2, 2.0],
+                small: [1.3, 1.4, 1.5, 1.2, 1.1, 1.3, 1.6, 1.4],
+                medium: [1.9, 2.0, 2.1, 1.8, 1.7, 1.9, 2.2, 2.0],
+                large: [2.4, 2.5, 2.6, 2.3, 2.2, 2.4, 2.7, 2.5]
+            },
+            government: {
+                all: [2.2, 2.3, 2.4, 2.1, 2.0, 2.2, 2.5, 2.3],
+                small: [1.6, 1.7, 1.8, 1.5, 1.4, 1.6, 1.9, 1.7],
+                medium: [2.2, 2.3, 2.4, 2.1, 2.0, 2.2, 2.5, 2.3],
+                large: [2.6, 2.7, 2.8, 2.5, 2.4, 2.6, 2.8, 2.7]
+            },
+            manufacturing: {
+                all: [1.5, 1.6, 1.7, 1.4, 1.3, 1.5, 1.8, 1.6],
+                small: [1.0, 1.1, 1.2, 0.9, 0.8, 1.0, 1.3, 1.1],
+                medium: [1.5, 1.6, 1.7, 1.4, 1.3, 1.5, 1.8, 1.6],
+                large: [2.0, 2.1, 2.2, 1.9, 1.8, 2.0, 2.3, 2.1]
+            },
+            retail: {
+                all: [1.6, 1.7, 1.8, 1.5, 1.4, 1.6, 1.9, 1.7],
+                small: [1.1, 1.2, 1.3, 1.0, 0.9, 1.1, 1.4, 1.2],
+                medium: [1.6, 1.7, 1.8, 1.5, 1.4, 1.6, 1.9, 1.7],
+                large: [2.1, 2.2, 2.3, 2.0, 1.9, 2.1, 2.4, 2.2]
+            },
+            technology: {
+                all: [2.3, 2.4, 2.5, 2.2, 2.1, 2.3, 2.6, 2.4],
+                small: [1.7, 1.8, 1.9, 1.6, 1.5, 1.7, 2.0, 1.8],
+                medium: [2.3, 2.4, 2.5, 2.2, 2.1, 2.3, 2.6, 2.4],
+                large: [2.7, 2.8, 2.9, 2.6, 2.5, 2.7, 2.9, 2.8]
+            },
+            utilities: {
+                all: [2.0, 2.1, 2.2, 1.9, 1.8, 2.0, 2.3, 2.1],
+                small: [1.4, 1.5, 1.6, 1.3, 1.2, 1.4, 1.7, 1.5],
+                medium: [2.0, 2.1, 2.2, 1.9, 1.8, 2.0, 2.3, 2.1],
+                large: [2.5, 2.6, 2.7, 2.4, 2.3, 2.5, 2.8, 2.6]
+            }
+        };
+
+        // Distribution data (percentage of orgs at each level)
+        const maturityDistribution = {
+            all: [
+                [15, 30, 35, 20], // Control 1
+                [10, 25, 40, 25], // Control 2
+                [8, 22, 42, 28],  // Control 3
+                [18, 32, 33, 17], // Control 4
+                [22, 35, 30, 13], // Control 5
+                [12, 28, 38, 22], // Control 6
+                [8, 20, 38, 34],  // Control 7
+                [10, 25, 40, 25]  // Control 8
+            ]
+        };
+
+        // Global state
+        let charts = {};
+        let currentScores = [1, 1, 1, 1, 1, 1, 1, 1]; // Default to Level 1
+
+        // Initialize the page
+        function init() {
+            renderAssessmentGrid();
+            updateBenchmarks();
+        }
+
+        // Render the assessment grid
+        function renderAssessmentGrid() {
+            const grid = document.getElementById('assessmentGrid');
+            let html = '';
+
+            e8Controls.forEach((control, index) => {
+                html += `
+                    <div class="control-card">
+                        <div class="control-header">
+                            <div class="control-number">${control.id}</div>
+                            <div class="control-info">
+                                <h4>${control.name}</h4>
+                                <p>${control.description}</p>
+                            </div>
+                        </div>
+                        <div class="maturity-selector">
+                            ${[0, 1, 2, 3].map(level => `
+                                <div class="maturity-option level-${level}">
+                                    <input type="radio"
+                                           id="control${control.id}_level${level}"
+                                           name="control${control.id}"
+                                           value="${level}"
+                                           ${level === 1 ? 'checked' : ''}
+                                           onchange="updateScore(${index}, ${level})">
+                                    <label for="control${control.id}_level${level}">L${level}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Update score when user changes selection
+        function updateScore(index, level) {
+            currentScores[index] = level;
+            updateCharts();
+        }
+
+        // Get current benchmark based on selections
+        function getCurrentBenchmark() {
+            const industry = document.getElementById('industrySelect').value;
+            const size = document.getElementById('orgSizeSelect').value;
+            return industryBenchmarks[industry][size];
+        }
+
+        // Update all visualizations when benchmark selection changes
+        function updateBenchmarks() {
+            updateCharts();
+        }
+
+        // Update all charts
+        function updateCharts() {
+            const benchmark = getCurrentBenchmark();
+            const targetLevel = parseInt(document.getElementById('targetLevel').value);
+
+            updateKPIs(benchmark, targetLevel);
+            createRadarChart(benchmark);
+            createComparisonChart(benchmark, targetLevel);
+            updateGapTable(benchmark, targetLevel);
+            createDistributionChart();
+            updateRecommendations(targetLevel);
+        }
+
+        // Update KPI cards
+        function updateKPIs(benchmark, targetLevel) {
+            const avgScore = currentScores.reduce((a, b) => a + b, 0) / currentScores.length;
+            const avgBenchmark = benchmark.reduce((a, b) => a + b, 0) / benchmark.length;
+            const controlsAtTarget = currentScores.filter(s => s >= targetLevel).length;
+            const gapsCount = currentScores.filter((s, i) => s < benchmark[i]).length;
+
+            const kpiHTML = `
+                <div class="kpi-card ${avgScore >= targetLevel ? 'success' : avgScore >= targetLevel - 1 ? 'highlight' : 'warning'}">
+                    <div class="kpi-label">Average Maturity Level</div>
+                    <div class="kpi-value">${avgScore.toFixed(1)}</div>
+                    <div class="kpi-comparison">Target: Level ${targetLevel} | ${avgScore >= targetLevel ? 'At or above target' : 'Below target'}</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Industry Benchmark (Avg)</div>
+                    <div class="kpi-value">${avgBenchmark.toFixed(1)}</div>
+                    <div class="kpi-comparison">${avgScore >= avgBenchmark ? 'Above' : 'Below'} industry average by ${Math.abs(avgScore - avgBenchmark).toFixed(1)} levels</div>
+                </div>
+
+                <div class="kpi-card ${controlsAtTarget === 8 ? 'success' : controlsAtTarget >= 4 ? 'highlight' : 'warning'}">
+                    <div class="kpi-label">Controls at Target Level</div>
+                    <div class="kpi-value">${controlsAtTarget} / 8</div>
+                    <div class="kpi-comparison">${8 - controlsAtTarget} controls need improvement</div>
+                </div>
+
+                <div class="kpi-card ${gapsCount === 0 ? 'success' : gapsCount <= 3 ? 'highlight' : 'warning'}">
+                    <div class="kpi-label">Controls Below Benchmark</div>
+                    <div class="kpi-value">${gapsCount}</div>
+                    <div class="kpi-comparison">${gapsCount === 0 ? 'All controls at or above benchmark' : `${gapsCount} controls need attention`}</div>
+                </div>
+            `;
+
+            document.getElementById('kpiGrid').innerHTML = kpiHTML;
+        }
+
+        // Create radar chart
+        function createRadarChart(benchmark) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            const labels = e8Controls.map(c => c.name);
+
+            if (charts.radar) {
+                charts.radar.destroy();
+            }
+
+            charts.radar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Your Organisation',
+                            data: currentScores,
+                            backgroundColor: 'rgba(9, 44, 80, 0.2)',
+                            borderColor: 'rgba(9, 44, 80, 0.8)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#092c50',
+                            pointBorderColor: '#fff',
+                            pointRadius: 5
+                        },
+                        {
+                            label: 'Industry Benchmark',
+                            data: benchmark,
+                            backgroundColor: 'rgba(139, 216, 189, 0.2)',
+                            borderColor: 'rgba(139, 216, 189, 0.8)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#8bd8bd',
+                            pointBorderColor: '#fff',
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 3,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return 'L' + value;
+                                }
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': Level ' + context.parsed.r.toFixed(1);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create comparison bar chart
+        function createComparisonChart(benchmark, targetLevel) {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            const labels = e8Controls.map(c => 'E' + c.id);
+
+            if (charts.comparison) {
+                charts.comparison.destroy();
+            }
+
+            charts.comparison = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Your Score',
+                            data: currentScores,
+                            backgroundColor: '#092c50',
+                            borderWidth: 0,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Benchmark',
+                            data: benchmark,
+                            backgroundColor: '#8bd8bd',
+                            borderWidth: 0,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Target',
+                            data: new Array(8).fill(targetLevel),
+                            type: 'line',
+                            borderColor: '#fd7e14',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const idx = context[0].dataIndex;
+                                    return e8Controls[idx].name;
+                                },
+                                label: function(context) {
+                                    if (context.dataset.type === 'line') {
+                                        return 'Target: Level ' + context.parsed.y;
+                                    }
+                                    return context.dataset.label + ': Level ' + context.parsed.y.toFixed(1);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 3,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return 'Level ' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update gap analysis table
+        function updateGapTable(benchmark, targetLevel) {
+            const tbody = document.getElementById('gapTable').querySelector('tbody');
+            let html = '';
+
+            e8Controls.forEach((control, i) => {
+                const current = currentScores[i];
+                const bench = benchmark[i];
+                const gap = current - targetLevel;
+                const gapClass = gap >= 0 ? 'positive' : 'negative';
+                const gapPercent = Math.min(Math.abs(gap) / 3 * 100, 100);
+
+                html += `
+                    <tr>
+                        <td><strong>${control.name}</strong></td>
+                        <td><span class="maturity-badge level-${current}">Level ${current}</span></td>
+                        <td><span class="maturity-badge level-${Math.round(bench)}">Level ${bench.toFixed(1)}</span></td>
+                        <td><span class="maturity-badge level-${targetLevel}">Level ${targetLevel}</span></td>
+                        <td>
+                            <div class="gap-indicator">
+                                <div class="gap-bar">
+                                    <div class="gap-fill ${gap === 0 ? 'neutral' : gapClass}" style="width: ${gapPercent}%;"></div>
+                                </div>
+                                <span class="gap-text ${gap === 0 ? 'neutral' : gapClass}">
+                                    ${gap > 0 ? '+' : ''}${gap}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Create distribution chart
+        function createDistributionChart() {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            const labels = e8Controls.map(c => 'E' + c.id);
+
+            if (charts.distribution) {
+                charts.distribution.destroy();
+            }
+
+            const colors = ['#dc3545', '#fd7e14', '#ffc107', '#28a745'];
+
+            charts.distribution = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Level 0',
+                            data: maturityDistribution.all.map(d => d[0]),
+                            backgroundColor: colors[0],
+                            stack: 'stack1'
+                        },
+                        {
+                            label: 'Level 1',
+                            data: maturityDistribution.all.map(d => d[1]),
+                            backgroundColor: colors[1],
+                            stack: 'stack1'
+                        },
+                        {
+                            label: 'Level 2',
+                            data: maturityDistribution.all.map(d => d[2]),
+                            backgroundColor: colors[2],
+                            stack: 'stack1'
+                        },
+                        {
+                            label: 'Level 3',
+                            data: maturityDistribution.all.map(d => d[3]),
+                            backgroundColor: colors[3],
+                            stack: 'stack1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const idx = context[0].dataIndex;
+                                    return e8Controls[idx].name;
+                                },
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + '% of organisations';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update recommendations
+        function updateRecommendations(targetLevel) {
+            const recommendations = [];
+
+            e8Controls.forEach((control, i) => {
+                const current = currentScores[i];
+                const gap = targetLevel - current;
+
+                if (gap > 0) {
+                    // Determine priority based on gap size and control importance
+                    let priority = 'low';
+                    if (gap >= 2) {
+                        priority = 'high';
+                    } else if (gap >= 1) {
+                        priority = 'medium';
+                    }
+
+                    // Higher priority for certain critical controls
+                    if ([5, 7].includes(control.id) && gap > 0) {
+                        priority = gap >= 1 ? 'high' : 'medium';
+                    }
+
+                    recommendations.push({
+                        control: control,
+                        currentLevel: current,
+                        targetLevel: targetLevel,
+                        gap: gap,
+                        priority: priority,
+                        recommendation: control.recommendations[current] || control.recommendations[0]
+                    });
+                }
+            });
+
+            // Sort by priority
+            const priorityOrder = { high: 0, medium: 1, low: 2 };
+            recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+            const list = document.getElementById('recommendationsList');
+
+            if (recommendations.length === 0) {
+                list.innerHTML = `
+                    <li class="priority-low" style="border-left-color: #28a745;">
+                        <span class="priority-badge" style="background-color: #28a745; color: white;">Achieved</span>
+                        <div class="recommendation-content">
+                            <h4>All controls at target level</h4>
+                            <p>Congratulations! All Essential 8 controls are at or above your target maturity level. Consider increasing your target to Level 3 for maximum protection.</p>
+                        </div>
+                    </li>
+                `;
+                return;
+            }
+
+            let html = '';
+            recommendations.forEach(rec => {
+                html += `
+                    <li class="priority-${rec.priority}">
+                        <span class="priority-badge ${rec.priority}">${rec.priority}</span>
+                        <div class="recommendation-content">
+                            <h4>${rec.control.name} (Current: L${rec.currentLevel} → Target: L${rec.targetLevel})</h4>
+                            <p>${rec.recommendation}</p>
+                        </div>
+                    </li>
+                `;
+            });
+
+            list.innerHTML = html;
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
