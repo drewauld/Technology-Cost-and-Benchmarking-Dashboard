@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organisational IT Maturity | TechElevate</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary-navy: #092c50;
+            --accent-mint: #8bd8bd;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --border-gray: #e0e0e0;
+            --text-dark: #333333;
+            --text-light: #666666;
+            /* Maturity colors */
+            --level-1: #dc3545;
+            --level-2: #fd7e14;
+            --level-3: #ffc107;
+            --level-4: #20c997;
+            --level-5: #28a745;
+            --low-maturity: #8b0000;
+            --high-maturity: #006400;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            color: var(--primary-navy);
+        }
+
+        .header {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            color: var(--white);
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header .subtitle {
+            color: var(--accent-mint);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: #6fc4a8;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--accent-mint);
+        }
+
+        .info-banner {
+            background-color: rgba(139, 216, 189, 0.2);
+            border-left: 4px solid var(--accent-mint);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-banner p {
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        .kpi-card.highlight {
+            background: linear-gradient(135deg, var(--accent-mint) 0%, #6fc4a8 100%);
+            color: var(--primary-navy);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+        }
+
+        .kpi-comparison {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Maturity Matrix */
+        .maturity-matrix {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .maturity-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 1200px;
+        }
+
+        .maturity-table th {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .maturity-table th.dimension-header {
+            text-align: left;
+            min-width: 180px;
+        }
+
+        .maturity-table th.low-maturity-header {
+            background-color: var(--low-maturity);
+            min-width: 120px;
+        }
+
+        .maturity-table th.high-maturity-header {
+            background-color: var(--high-maturity);
+            min-width: 140px;
+        }
+
+        .maturity-table td {
+            padding: 0.5rem;
+            border: 1px solid var(--border-gray);
+            vertical-align: top;
+            font-size: 0.75rem;
+        }
+
+        .maturity-table td.dimension-name {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .maturity-table td.low-maturity {
+            background-color: rgba(139, 0, 0, 0.1);
+            color: var(--low-maturity);
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .maturity-table td.high-maturity {
+            background-color: rgba(0, 100, 0, 0.1);
+            color: var(--high-maturity);
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .level-cell {
+            position: relative;
+            min-height: 80px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .level-cell:hover {
+            background-color: rgba(139, 216, 189, 0.2);
+        }
+
+        .level-cell.selected {
+            outline: 3px solid var(--primary-navy);
+            background-color: rgba(9, 44, 80, 0.1);
+        }
+
+        .level-cell.level-1 { border-top: 4px solid var(--level-1); }
+        .level-cell.level-2 { border-top: 4px solid var(--level-2); }
+        .level-cell.level-3 { border-top: 4px solid var(--level-3); }
+        .level-cell.level-4 { border-top: 4px solid var(--level-4); }
+        .level-cell.level-5 { border-top: 4px solid var(--level-5); }
+
+        .level-description {
+            font-size: 0.7rem;
+            line-height: 1.4;
+            color: var(--text-dark);
+        }
+
+        .benchmark-marker {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+
+        .marker {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .marker.your-org {
+            background-color: var(--primary-navy);
+        }
+
+        .marker.benchmark {
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+        }
+
+        /* Assessment Form */
+        .assessment-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .dimension-row {
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid var(--primary-navy);
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .dimension-title {
+            font-weight: 700;
+            color: var(--primary-navy);
+            font-size: 1rem;
+        }
+
+        .dimension-score {
+            font-weight: 900;
+            font-size: 1.2rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            color: var(--white);
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .level-option {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .level-option input {
+            display: none;
+        }
+
+        .level-option label {
+            display: block;
+            padding: 0.5rem;
+            text-align: center;
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            background-color: var(--white);
+        }
+
+        .level-option input:checked + label {
+            border-color: var(--primary-navy);
+            background-color: var(--primary-navy);
+            color: var(--white);
+        }
+
+        .level-option label:hover {
+            border-color: var(--accent-mint);
+        }
+
+        /* Config Section */
+        .config-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        .config-group label {
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .config-group select {
+            padding: 0.75rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .config-group select:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+        }
+
+        /* Recommendations */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .recommendation-card {
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid var(--level-3);
+        }
+
+        .recommendation-card.priority-high {
+            border-left-color: var(--level-1);
+        }
+
+        .recommendation-card.priority-medium {
+            border-left-color: var(--level-3);
+        }
+
+        .recommendation-card.priority-low {
+            border-left-color: var(--level-5);
+        }
+
+        .recommendation-card h4 {
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .recommendation-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-card .priority {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .recommendation-card .priority.high { color: var(--level-1); }
+        .recommendation-card .priority.medium { color: var(--level-3); }
+        .recommendation-card .priority.low { color: var(--level-5); }
+
+        /* Gap Analysis Table */
+        .gap-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .gap-table th {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .gap-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .gap-table tbody tr:hover {
+            background-color: rgba(139, 216, 189, 0.1);
+        }
+
+        .gap-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gap-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .gap-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .gap-fill.positive { background-color: var(--level-5); }
+        .gap-fill.negative { background-color: var(--level-1); }
+        .gap-fill.neutral { background-color: var(--level-3); }
+
+        .level-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--white);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .level-badge.level-1 { background-color: var(--level-1); }
+        .level-badge.level-2 { background-color: var(--level-2); }
+        .level-badge.level-3 { background-color: var(--level-3); color: var(--text-dark); }
+        .level-badge.level-4 { background-color: var(--level-4); }
+        .level-badge.level-5 { background-color: var(--level-5); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .level-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>Organisational IT Maturity</h1>
+                <p class="subtitle">TechElevate | IT Capability Assessment</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <span>&larr;</span> Cost Dashboard
+                </a>
+                <a href="spend-benchmarking.html" class="nav-link">
+                    IT Benchmarking
+                </a>
+                <a href="e8-benchmarking.html" class="nav-link">
+                    Essential 8 <span>&rarr;</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="card">
+            <h2>About IT Maturity Assessment</h2>
+            <div class="info-banner">
+                <p>This framework assesses your organisation's IT maturity across six key dimensions. Each dimension is rated from Level 1 (ad-hoc, reactive) to Level 5 (optimised, strategic). Use this assessment to identify gaps and prioritise improvement initiatives.</p>
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-light);">Click on the level descriptions in the matrix below or use the quick assessment form to rate your organisation. Compare your scores against industry benchmarks to understand your relative position.</p>
+        </div>
+
+        <!-- Benchmark Configuration -->
+        <div class="card">
+            <h2>Benchmark Configuration</h2>
+            <div class="config-row">
+                <div class="config-group">
+                    <label for="industrySelect">Industry Sector</label>
+                    <select id="industrySelect" onchange="updateBenchmarks()">
+                        <option value="all">All Industries (Average)</option>
+                        <option value="construction" selected>Construction & Engineering</option>
+                        <option value="financial">Financial Services</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="professional">Professional Services</option>
+                        <option value="technology">Technology</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label for="orgSizeSelect">Organisation Size</label>
+                    <select id="orgSizeSelect" onchange="updateBenchmarks()">
+                        <option value="small">Small (1-100 employees)</option>
+                        <option value="medium" selected>Medium (101-500 employees)</option>
+                        <option value="large">Large (500+ employees)</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label for="targetSelect">Target Maturity</label>
+                    <select id="targetSelect" onchange="updateBenchmarks()">
+                        <option value="3">Level 3 - Defined</option>
+                        <option value="4" selected>Level 4 - Managed</option>
+                        <option value="5">Level 5 - Optimised</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Summary -->
+        <div class="kpi-grid" id="kpiGrid">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Quick Assessment -->
+        <div class="card">
+            <h2>Quick Assessment</h2>
+            <div class="info-banner">
+                <p>Select the maturity level that best describes your organisation's current state for each dimension.</p>
+            </div>
+            <div class="assessment-grid" id="assessmentGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Maturity Charts -->
+        <div class="card">
+            <h2>Maturity Profile</h2>
+            <div class="charts-row">
+                <div>
+                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Radar View</h3>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">Dimension Comparison</h3>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Maturity Matrix -->
+        <div class="card">
+            <h2>Detailed Maturity Matrix</h2>
+            <div class="info-banner">
+                <p>Click on any cell to set your organisation's maturity level for that dimension. The matrix shows detailed descriptions for each level.</p>
+            </div>
+            <div class="maturity-matrix">
+                <table class="maturity-table" id="maturityMatrix">
+                    <!-- Populated by JavaScript -->
+                </table>
+            </div>
+        </div>
+
+        <!-- Gap Analysis -->
+        <div class="card">
+            <h2>Gap Analysis</h2>
+            <table class="gap-table" id="gapTable">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Dimension</th>
+                        <th style="width: 12%;">Current</th>
+                        <th style="width: 12%;">Benchmark</th>
+                        <th style="width: 12%;">Target</th>
+                        <th style="width: 25%;">Gap to Target</th>
+                        <th style="width: 14%;">Priority</th>
+                    </tr>
+                </thead>
+                <tbody id="gapTableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card">
+            <h2>Improvement Recommendations</h2>
+            <div class="recommendations-grid" id="recommendationsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Maturity dimensions and levels
+        const dimensions = [
+            {
+                id: 'services',
+                name: 'Services and Processes',
+                lowMaturity: 'Unclear service strategy and underpinning processes',
+                highMaturity: 'Optimised ICT cost to service model',
+                levels: [
+                    { level: 1, description: 'Informal service delivery with undefined processes' },
+                    { level: 2, description: 'Approach to service delivery existent with some documented processes' },
+                    { level: 3, description: 'Service catalogue and standardised process with manual workarounds' },
+                    { level: 4, description: 'SLAs consistently measured and managed, known ICT cost to serve' },
+                    { level: 5, description: 'Automated processes, replication of effort to value-adding activities' }
+                ]
+            },
+            {
+                id: 'governance',
+                name: 'Organisation and Governance',
+                lowMaturity: 'Unclear accountability',
+                highMaturity: 'Business partnership',
+                levels: [
+                    { level: 1, description: 'Undefined roles and responsibilities, inconsistent governance' },
+                    { level: 2, description: 'Organisation structure defined in silos, informal KPIs' },
+                    { level: 3, description: 'ICT governance framework in place' },
+                    { level: 4, description: 'Measured and managed organisation, assigned process ownership' },
+                    { level: 5, description: 'Business partnering structure, industry good practice governance' }
+                ]
+            },
+            {
+                id: 'technology',
+                name: 'Technology and Data',
+                lowMaturity: 'Technology landscape fragmented and misaligned',
+                highMaturity: 'Architecture aligned to business',
+                levels: [
+                    { level: 1, description: 'Limited ICT systems deployed in response to ad-hoc business demands, disparate data' },
+                    { level: 2, description: 'Several technology plans not aligned to business, technology loosely managed' },
+                    { level: 3, description: 'Business engagement defines ICT Strategic Plan, technology architecture standardised' },
+                    { level: 4, description: 'ICT involvement in business initiatives, adoption of emerging technologies' },
+                    { level: 5, description: 'ICT is a trusted business partner, Technology is key to strategy execution' }
+                ]
+            },
+            {
+                id: 'sourcing',
+                name: 'Sourcing and Assets',
+                lowMaturity: 'Ad-hoc technology investment',
+                highMaturity: 'Vendor partnership',
+                levels: [
+                    { level: 1, description: 'Process to source assets and manage lifecycle over useful life is inexistent' },
+                    { level: 2, description: 'Vendor management limited to addressing performance issues, ICT assets reviewed for obsolescence' },
+                    { level: 3, description: 'Some SLAs provided by vendors, standards for commercial management of assets defined' },
+                    { level: 4, description: 'SLAs and performance review processes in place, asset utilisation tracked' },
+                    { level: 5, description: 'Strategic vendor relationships, asset cost and value for money optimised' }
+                ]
+            },
+            {
+                id: 'people',
+                name: 'People and Skills',
+                lowMaturity: 'Minimal human capital investment',
+                highMaturity: 'High-performing staff',
+                levels: [
+                    { level: 1, description: 'Resourcing driven by immediate, ad-hoc needs, no development of people' },
+                    { level: 2, description: 'Informal definition of job roles and development plans' },
+                    { level: 3, description: 'Resource capability is aligned with ICT requirements, training provided' },
+                    { level: 4, description: 'Individual performance managed, skills framework and career pathways defined' },
+                    { level: 5, description: 'Expertise and skills necessary for a high-performance ICT organisation developed' }
+                ]
+            },
+            {
+                id: 'risk',
+                name: 'Risk and Security',
+                lowMaturity: 'Reactive approach, blame culture',
+                highMaturity: 'Controlled, preventative and compliant',
+                levels: [
+                    { level: 1, description: 'Inability to anticipate risks and issues' },
+                    { level: 2, description: 'Intuitive risk identification, assigned ICT security responsibilities' },
+                    { level: 3, description: 'Risk management process integrated in the organisation, ICT security seen as sole responsibility of ICT' },
+                    { level: 4, description: 'Risks managed through a common process, ICT security coordination at business level' },
+                    { level: 5, description: 'Risk management aligned to best practice, ICT security is a joint responsibility of business and ICT' }
+                ]
+            }
+        ];
+
+        // Industry benchmarks
+        const industryBenchmarks = {
+            all: {
+                small: { services: 2, governance: 2, technology: 2, sourcing: 2, people: 2, risk: 2 },
+                medium: { services: 3, governance: 3, technology: 3, sourcing: 3, people: 3, risk: 3 },
+                large: { services: 4, governance: 4, technology: 4, sourcing: 3, people: 4, risk: 4 }
+            },
+            construction: {
+                small: { services: 2, governance: 2, technology: 2, sourcing: 2, people: 2, risk: 2 },
+                medium: { services: 3, governance: 2, technology: 3, sourcing: 3, people: 2, risk: 3 },
+                large: { services: 3, governance: 3, technology: 3, sourcing: 3, people: 3, risk: 3 }
+            },
+            financial: {
+                small: { services: 3, governance: 3, technology: 3, sourcing: 3, people: 3, risk: 4 },
+                medium: { services: 4, governance: 4, technology: 4, sourcing: 4, people: 4, risk: 4 },
+                large: { services: 4, governance: 5, technology: 4, sourcing: 4, people: 4, risk: 5 }
+            },
+            healthcare: {
+                small: { services: 2, governance: 3, technology: 2, sourcing: 2, people: 2, risk: 3 },
+                medium: { services: 3, governance: 3, technology: 3, sourcing: 3, people: 3, risk: 4 },
+                large: { services: 4, governance: 4, technology: 4, sourcing: 3, people: 3, risk: 4 }
+            },
+            manufacturing: {
+                small: { services: 2, governance: 2, technology: 2, sourcing: 2, people: 2, risk: 2 },
+                medium: { services: 3, governance: 3, technology: 3, sourcing: 3, people: 2, risk: 3 },
+                large: { services: 3, governance: 3, technology: 4, sourcing: 3, people: 3, risk: 3 }
+            },
+            professional: {
+                small: { services: 3, governance: 3, technology: 3, sourcing: 2, people: 3, risk: 3 },
+                medium: { services: 3, governance: 3, technology: 4, sourcing: 3, people: 3, risk: 3 },
+                large: { services: 4, governance: 4, technology: 4, sourcing: 4, people: 4, risk: 4 }
+            },
+            technology: {
+                small: { services: 3, governance: 3, technology: 4, sourcing: 3, people: 3, risk: 3 },
+                medium: { services: 4, governance: 4, technology: 4, sourcing: 4, people: 4, risk: 4 },
+                large: { services: 5, governance: 4, technology: 5, sourcing: 4, people: 5, risk: 4 }
+            }
+        };
+
+        // Current scores (default values)
+        let currentScores = {
+            services: 3,
+            governance: 2,
+            technology: 3,
+            sourcing: 3,
+            people: 2,
+            risk: 3
+        };
+
+        let charts = {};
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            renderAssessmentForm();
+            renderMaturityMatrix();
+            updateAll();
+        }
+
+        // Render quick assessment form
+        function renderAssessmentForm() {
+            const container = document.getElementById('assessmentGrid');
+            let html = '';
+
+            dimensions.forEach(dim => {
+                html += `
+                    <div class="dimension-row">
+                        <div class="dimension-header">
+                            <span class="dimension-title">${dim.name}</span>
+                            <span class="dimension-score level-badge level-${currentScores[dim.id]}" id="score-${dim.id}">Level ${currentScores[dim.id]}</span>
+                        </div>
+                        <div class="level-selector">
+                            ${[1,2,3,4,5].map(level => `
+                                <div class="level-option">
+                                    <input type="radio" name="${dim.id}" id="${dim.id}-${level}" value="${level}"
+                                           ${currentScores[dim.id] === level ? 'checked' : ''}
+                                           onchange="setScore('${dim.id}', ${level})">
+                                    <label for="${dim.id}-${level}">L${level}: ${dim.levels[level-1].description.substring(0, 40)}...</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Render maturity matrix
+        function renderMaturityMatrix() {
+            const table = document.getElementById('maturityMatrix');
+            const benchmark = getCurrentBenchmark();
+
+            let html = `
+                <thead>
+                    <tr>
+                        <th class="dimension-header"></th>
+                        <th class="low-maturity-header">Low Maturity</th>
+                        <th>Level 1</th>
+                        <th>Level 2</th>
+                        <th>Level 3</th>
+                        <th>Level 4</th>
+                        <th>Level 5</th>
+                        <th class="high-maturity-header">High Maturity</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            dimensions.forEach(dim => {
+                html += `<tr>`;
+                html += `<td class="dimension-name">${dim.name}</td>`;
+                html += `<td class="low-maturity">${dim.lowMaturity}</td>`;
+
+                dim.levels.forEach((levelData, idx) => {
+                    const level = idx + 1;
+                    const isSelected = currentScores[dim.id] === level;
+                    const isBenchmark = benchmark[dim.id] === level;
+
+                    html += `
+                        <td class="level-cell level-${level} ${isSelected ? 'selected' : ''}"
+                            onclick="setScore('${dim.id}', ${level})"
+                            data-dimension="${dim.id}" data-level="${level}">
+                            <div class="level-description">${levelData.description}</div>
+                            <div class="benchmark-marker">
+                                ${isSelected ? '<span class="marker your-org">You</span>' : ''}
+                                ${isBenchmark ? '<span class="marker benchmark">Avg</span>' : ''}
+                            </div>
+                        </td>
+                    `;
+                });
+
+                html += `<td class="high-maturity">${dim.highMaturity}</td>`;
+                html += `</tr>`;
+            });
+
+            html += `</tbody>`;
+            table.innerHTML = html;
+        }
+
+        // Set score for a dimension
+        function setScore(dimensionId, level) {
+            currentScores[dimensionId] = level;
+
+            // Update radio button
+            const radio = document.getElementById(`${dimensionId}-${level}`);
+            if (radio) radio.checked = true;
+
+            // Update score badge
+            const badge = document.getElementById(`score-${dimensionId}`);
+            if (badge) {
+                badge.textContent = `Level ${level}`;
+                badge.className = `dimension-score level-badge level-${level}`;
+            }
+
+            updateAll();
+        }
+
+        // Get current benchmark
+        function getCurrentBenchmark() {
+            const industry = document.getElementById('industrySelect').value;
+            const size = document.getElementById('orgSizeSelect').value;
+            return industryBenchmarks[industry][size];
+        }
+
+        // Update all displays
+        function updateAll() {
+            updateKPIs();
+            renderMaturityMatrix();
+            createRadarChart();
+            createComparisonChart();
+            updateGapTable();
+            updateRecommendations();
+        }
+
+        // Update benchmarks (called on config change)
+        function updateBenchmarks() {
+            updateAll();
+        }
+
+        // Update KPI cards
+        function updateKPIs() {
+            const benchmark = getCurrentBenchmark();
+            const target = parseInt(document.getElementById('targetSelect').value);
+
+            const avgScore = Object.values(currentScores).reduce((a, b) => a + b, 0) / 6;
+            const avgBenchmark = Object.values(benchmark).reduce((a, b) => a + b, 0) / 6;
+            const atTarget = Object.values(currentScores).filter(s => s >= target).length;
+            const belowBenchmark = Object.keys(currentScores).filter(k => currentScores[k] < benchmark[k]).length;
+
+            const html = `
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">Average Maturity</div>
+                    <div class="kpi-value">${avgScore.toFixed(1)}</div>
+                    <div class="kpi-comparison">Benchmark: ${avgBenchmark.toFixed(1)}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Dimensions at Target</div>
+                    <div class="kpi-value">${atTarget}/6</div>
+                    <div class="kpi-comparison">Target: Level ${target}+</div>
+                </div>
+                <div class="kpi-card ${belowBenchmark > 2 ? 'style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);"' : ''}">
+                    <div class="kpi-label">Below Benchmark</div>
+                    <div class="kpi-value">${belowBenchmark}</div>
+                    <div class="kpi-comparison">Dimensions needing attention</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Highest Maturity</div>
+                    <div class="kpi-value">L${Math.max(...Object.values(currentScores))}</div>
+                    <div class="kpi-comparison">${dimensions.find(d => currentScores[d.id] === Math.max(...Object.values(currentScores)))?.name}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Lowest Maturity</div>
+                    <div class="kpi-value">L${Math.min(...Object.values(currentScores))}</div>
+                    <div class="kpi-comparison">${dimensions.find(d => currentScores[d.id] === Math.min(...Object.values(currentScores)))?.name}</div>
+                </div>
+            `;
+
+            document.getElementById('kpiGrid').innerHTML = html;
+        }
+
+        // Create radar chart
+        function createRadarChart() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            const benchmark = getCurrentBenchmark();
+            const target = parseInt(document.getElementById('targetSelect').value);
+
+            if (charts.radar) charts.radar.destroy();
+
+            charts.radar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: dimensions.map(d => d.name),
+                    datasets: [
+                        {
+                            label: 'Your Organisation',
+                            data: dimensions.map(d => currentScores[d.id]),
+                            backgroundColor: 'rgba(9, 44, 80, 0.2)',
+                            borderColor: '#092c50',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#092c50'
+                        },
+                        {
+                            label: 'Industry Benchmark',
+                            data: dimensions.map(d => benchmark[d.id]),
+                            backgroundColor: 'rgba(139, 216, 189, 0.2)',
+                            borderColor: '#8bd8bd',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#8bd8bd'
+                        },
+                        {
+                            label: 'Target',
+                            data: dimensions.map(() => target),
+                            backgroundColor: 'transparent',
+                            borderColor: '#dc3545',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) { return 'L' + value; }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create comparison chart
+        function createComparisonChart() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            const benchmark = getCurrentBenchmark();
+            const target = parseInt(document.getElementById('targetSelect').value);
+
+            if (charts.comparison) charts.comparison.destroy();
+
+            charts.comparison = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dimensions.map(d => d.name.split(' ')[0]),
+                    datasets: [
+                        {
+                            label: 'Your Organisation',
+                            data: dimensions.map(d => currentScores[d.id]),
+                            backgroundColor: '#092c50'
+                        },
+                        {
+                            label: 'Benchmark',
+                            data: dimensions.map(d => benchmark[d.id]),
+                            backgroundColor: '#8bd8bd'
+                        },
+                        {
+                            label: 'Target',
+                            data: dimensions.map(() => target),
+                            type: 'line',
+                            borderColor: '#dc3545',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) { return 'Level ' + value; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update gap analysis table
+        function updateGapTable() {
+            const benchmark = getCurrentBenchmark();
+            const target = parseInt(document.getElementById('targetSelect').value);
+            const tbody = document.getElementById('gapTableBody');
+
+            let html = '';
+
+            dimensions.forEach(dim => {
+                const current = currentScores[dim.id];
+                const bench = benchmark[dim.id];
+                const gap = target - current;
+                const gapPercent = Math.min(Math.abs(gap) * 20, 100);
+                const gapClass = gap > 0 ? 'negative' : gap < 0 ? 'positive' : 'neutral';
+                const priority = gap >= 2 ? 'High' : gap === 1 ? 'Medium' : 'Low';
+                const priorityClass = gap >= 2 ? 'high' : gap === 1 ? 'medium' : 'low';
+
+                html += `
+                    <tr>
+                        <td><strong>${dim.name}</strong></td>
+                        <td><span class="level-badge level-${current}">Level ${current}</span></td>
+                        <td><span class="level-badge level-${bench}">Level ${bench}</span></td>
+                        <td><span class="level-badge level-${target}">Level ${target}</span></td>
+                        <td>
+                            <div class="gap-indicator">
+                                <div class="gap-bar">
+                                    <div class="gap-fill ${gapClass}" style="width: ${gapPercent}%;"></div>
+                                </div>
+                                <span style="min-width: 50px; font-weight: 700; color: ${gap > 0 ? 'var(--level-1)' : gap < 0 ? 'var(--level-5)' : 'var(--level-3)'};">
+                                    ${gap > 0 ? '-' : gap < 0 ? '+' : ''}${Math.abs(gap)} level${Math.abs(gap) !== 1 ? 's' : ''}
+                                </span>
+                            </div>
+                        </td>
+                        <td><span class="priority ${priorityClass}">${priority}</span></td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Update recommendations
+        function updateRecommendations() {
+            const benchmark = getCurrentBenchmark();
+            const target = parseInt(document.getElementById('targetSelect').value);
+            const container = document.getElementById('recommendationsGrid');
+
+            const recommendations = [];
+
+            dimensions.forEach(dim => {
+                const current = currentScores[dim.id];
+                const gap = target - current;
+
+                if (gap > 0) {
+                    const levelData = dim.levels[current]; // Next level description
+                    const priority = gap >= 2 ? 'high' : 'medium';
+
+                    recommendations.push({
+                        dimension: dim.name,
+                        current: current,
+                        target: Math.min(current + 1, 5),
+                        priority: priority,
+                        description: `Progress from Level ${current} to Level ${current + 1}: ${dim.levels[current]?.description || 'Continue improvement'}`
+                    });
+                }
+            });
+
+            // Sort by priority
+            recommendations.sort((a, b) => {
+                if (a.priority === 'high' && b.priority !== 'high') return -1;
+                if (b.priority === 'high' && a.priority !== 'high') return 1;
+                return 0;
+            });
+
+            let html = '';
+
+            if (recommendations.length === 0) {
+                html = `
+                    <div class="recommendation-card priority-low" style="grid-column: 1 / -1;">
+                        <h4>All Dimensions at Target!</h4>
+                        <p>Your organisation meets or exceeds the target maturity level across all dimensions. Consider raising your target or focusing on continuous improvement.</p>
+                        <span class="priority low">Maintain</span>
+                    </div>
+                `;
+            } else {
+                recommendations.forEach(rec => {
+                    html += `
+                        <div class="recommendation-card priority-${rec.priority}">
+                            <h4>${rec.dimension}</h4>
+                            <p>${rec.description}</p>
+                            <span class="priority ${rec.priority}">${rec.priority} Priority</span>
+                        </div>
+                    `;
+                });
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', initializeDashboard);
+    </script>
+</body>
+</html>
