@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Spend Benchmarking | TechElevate</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary-navy: #092c50;
+            --accent-mint: #8bd8bd;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --border-gray: #e0e0e0;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --benchmark-red: #dc3545;
+            --above-benchmark: #28a745;
+            --below-benchmark: #dc3545;
+            --at-benchmark: #ffc107;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            color: var(--primary-navy);
+        }
+
+        .header {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            color: var(--white);
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header .subtitle {
+            color: var(--accent-mint);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: #6fc4a8;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--accent-mint);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-banner {
+            background-color: rgba(139, 216, 189, 0.2);
+            border-left: 4px solid var(--accent-mint);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-banner p {
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card.highlight {
+            background: linear-gradient(135deg, var(--accent-mint) 0%, #6fc4a8 100%);
+            color: var(--primary-navy);
+        }
+
+        .kpi-card.above {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: var(--white);
+        }
+
+        .kpi-card.below {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: var(--white);
+        }
+
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #fd7e14 0%, #e06500 100%);
+            color: var(--white);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+        }
+
+        .kpi-comparison {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Configuration */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-group label {
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .config-group .help-text {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .config-group input, .config-group select {
+            padding: 0.75rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .config-group input:focus, .config-group select:focus {
+            outline: none;
+            border-color: var(--accent-mint);
+        }
+
+        /* Benchmark Table */
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .benchmark-table th {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .benchmark-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .benchmark-table tbody tr:hover {
+            background-color: rgba(139, 216, 189, 0.1);
+        }
+
+        .benchmark-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .benchmark-badge.above {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--below-benchmark);
+        }
+
+        .benchmark-badge.below {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--above-benchmark);
+        }
+
+        .benchmark-badge.at {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: #b38600;
+        }
+
+        /* Variance Indicator */
+        .variance-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .variance-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--border-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .variance-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .variance-fill.above {
+            background-color: var(--below-benchmark);
+        }
+
+        .variance-fill.below {
+            background-color: var(--above-benchmark);
+        }
+
+        .variance-text {
+            font-weight: 700;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .variance-text.above {
+            color: var(--below-benchmark);
+        }
+
+        .variance-text.below {
+            color: var(--above-benchmark);
+        }
+
+        /* E8 Link Card */
+        .e8-link-card {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .e8-link-card h3 {
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+
+        .e8-link-card p {
+            color: var(--accent-mint);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .e8-link-card .maturity-badge {
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        /* Drill Navigation */
+        .drill-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+        }
+
+        .drill-back-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-navy);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .drill-back-btn:hover {
+            background-color: #0a3d6b;
+        }
+
+        .drill-breadcrumb {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .drill-breadcrumb .level {
+            color: var(--text-light);
+        }
+
+        .drill-breadcrumb .current {
+            font-weight: 700;
+            color: var(--primary-navy);
+        }
+
+        /* Legend */
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-line {
+            width: 24px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>IT Spend Benchmarking</h1>
+                <p class="subtitle">TechElevate | Technology Cost Analysis</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <span>&larr;</span> Cost Dashboard
+                </a>
+                <a href="e8-benchmarking.html" class="nav-link">
+                    Essential 8 <span>&rarr;</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="card">
+            <h2>About IT Spend Benchmarking</h2>
+            <div class="info-banner">
+                <p>Compare your organization's IT spending against industry benchmarks to identify areas of over or under-investment. This analysis helps prioritize optimization efforts and justify budget decisions.</p>
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-light);">Spending <strong>above benchmark</strong> may indicate inefficiency or over-investment, while spending <strong>below benchmark</strong> could suggest under-investment or operational efficiency. Context matters - higher E8 maturity often correlates with higher security spend.</p>
+        </div>
+
+        <!-- Benchmark Configuration -->
+        <div class="card">
+            <h2>Benchmark Configuration</h2>
+            <div class="config-grid">
+                <div class="config-group">
+                    <label for="industrySelect">Industry Sector</label>
+                    <select id="industrySelect" onchange="updateBenchmarks()">
+                        <option value="all">All Industries (Average)</option>
+                        <option value="construction" selected>Construction & Engineering</option>
+                        <option value="financial">Financial Services</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="professional">Professional Services</option>
+                        <option value="retail">Retail</option>
+                        <option value="technology">Technology</option>
+                        <option value="utilities">Utilities & Energy</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label for="orgSizeSelect">Organisation Size</label>
+                    <select id="orgSizeSelect" onchange="updateBenchmarks()">
+                        <option value="small">Small (1-100 employees)</option>
+                        <option value="medium" selected>Medium (101-500 employees)</option>
+                        <option value="large">Large (500+ employees)</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label for="annualRevenue">Annual Revenue ($)</label>
+                    <input type="number" id="annualRevenue" value="140000000" min="0" step="1000000" onchange="updateBenchmarks()">
+                    <span class="help-text">Used to calculate IT as % of revenue</span>
+                </div>
+                <div class="config-group">
+                    <label for="totalUsers">Total Users</label>
+                    <input type="number" id="totalUsers" value="400" min="1" step="1" onchange="updateBenchmarks()">
+                    <span class="help-text">Office + Field users combined</span>
+                </div>
+                <div class="config-group">
+                    <label for="e8MaturityLevel">E8 Maturity Level</label>
+                    <select id="e8MaturityLevel" onchange="updateBenchmarks()">
+                        <option value="0">Level 0 - Not implemented</option>
+                        <option value="1" selected>Level 1 - Basic</option>
+                        <option value="2">Level 2 - Intermediate</option>
+                        <option value="3">Level 3 - Advanced</option>
+                    </select>
+                    <span class="help-text">Higher maturity typically means higher security spend</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Summary -->
+        <div class="kpi-grid" id="kpiGrid">
+            <!-- KPIs will be dynamically generated -->
+        </div>
+
+        <!-- Overall Spend vs Benchmark -->
+        <div class="card">
+            <h2>Overall IT Spend vs Industry Benchmark</h2>
+            <div class="info-banner">
+                <p>Comparison of your total IT spend against the industry benchmark. The red line indicates the industry benchmark level.</p>
+            </div>
+            <div class="chart-container" style="height: 350px;">
+                <canvas id="overallBenchmarkChart"></canvas>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #092c50;"></div>
+                    <span>Your Spend</span>
+                </div>
+                <div class="legend-line" style="background-color: #dc3545;"></div>
+                <span>Industry Benchmark</span>
+            </div>
+        </div>
+
+        <!-- BAU vs Project Split -->
+        <div class="card">
+            <h2>BAU vs Project Spend</h2>
+            <div class="info-banner">
+                <p>Breakdown of Business-As-Usual (Run) costs versus Project (Grow/Transform) costs. Healthy organizations typically allocate 70-80% to BAU and 20-30% to Projects.</p>
+            </div>
+            <div class="charts-row">
+                <div>
+                    <h3>Your Organization</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="bauProjectChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Benchmark Comparison</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="bauProjectBenchmarkChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Benchmarking with Drill-Down -->
+        <div class="card">
+            <h2>Category Spend vs Benchmark</h2>
+            <div id="categoryDrillNav" class="drill-nav" style="display: none;">
+                <button id="categoryBackBtn" onclick="drillBack()" class="drill-back-btn">
+                    &larr; Back
+                </button>
+                <span id="categoryBreadcrumb" class="drill-breadcrumb"></span>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryBenchmarkChart"></canvas>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #092c50;"></div>
+                    <span>Your Spend</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #8bd8bd;"></div>
+                    <span>Industry Benchmark</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background-color: #dc3545;"></div>
+                    <span>Target (P50)</span>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-light); font-style: italic;">Click on a category bar to drill down into sub-categories</p>
+        </div>
+
+        <!-- Detailed Benchmark Table -->
+        <div class="card">
+            <h2>Detailed Category Analysis</h2>
+            <div class="info-banner">
+                <p>Detailed comparison showing your spend versus benchmark for each category. Variance shows the difference as a percentage of the benchmark.</p>
+            </div>
+            <table class="benchmark-table" id="benchmarkTable">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Category</th>
+                        <th style="width: 15%;">Your Spend</th>
+                        <th style="width: 15%;">Benchmark</th>
+                        <th style="width: 25%;">Variance</th>
+                        <th style="width: 15%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="benchmarkTableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Areas of Interest -->
+        <div class="card">
+            <h2>Areas of Interest</h2>
+            <div class="info-banner">
+                <p>Key areas highlighted for review based on significant variance from benchmarks. These may represent opportunities for optimization or areas requiring investment.</p>
+            </div>
+            <div id="areasOfInterest">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- E8 Maturity Correlation -->
+        <div class="card">
+            <h2>Security Maturity & Spend Correlation</h2>
+            <div class="e8-link-card">
+                <div>
+                    <h3>Essential 8 Maturity Assessment</h3>
+                    <p>Organizations at higher E8 maturity levels typically spend more on security infrastructure. Your current maturity level affects expected benchmark ranges.</p>
+                </div>
+                <div style="text-align: center;">
+                    <div id="e8MaturityBadge" class="maturity-badge">Level 1</div>
+                    <a href="e8-benchmarking.html" style="display: block; margin-top: 0.5rem; color: var(--accent-mint); font-size: 0.85rem;">View E8 Assessment &rarr;</a>
+                </div>
+            </div>
+            <div class="chart-container" style="height: 300px; margin-top: 1rem;">
+                <canvas id="e8CorrelationChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Value/Efficiency Indicators -->
+        <div class="card">
+            <h2>Value & Efficiency Indicators</h2>
+            <div class="info-banner">
+                <p>Efficiency metrics that help assess the value delivered by IT investments. These indicators complement spend benchmarks to provide a more complete picture.</p>
+            </div>
+            <div class="kpi-grid" id="efficiencyGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        let spendData = [];
+        let charts = {};
+        let currentDrillLevel = 1; // 1 = L1, 2 = L2, 3 = L3
+        let drillPath = [];
+        let currentFilter = null;
+
+        // Industry benchmarks (as % of total IT spend per category)
+        const industryBenchmarks = {
+            construction: {
+                small: {
+                    itAsRevenue: 2.5,
+                    perUser: 6500,
+                    bauProjectSplit: { bau: 85, project: 15 },
+                    categories: {
+                        'IT Fundamentals (Infrastructure)': 55,
+                        'Line of Business Applications': 45
+                    },
+                    l2Categories: {
+                        'Networks & Connectivity': 8,
+                        'Communications': 12,
+                        'End-User Computing': 15,
+                        'Licensing': 10,
+                        'IT Operations & Support': 25,
+                        'Business Continuity & DR': 2,
+                        'Engineering Tools': 3,
+                        'Field': 5,
+                        'Finance & ERP': 25,
+                        'Reporting & Analytics': 5,
+                        'Specialist Applications': 3,
+                        'LoB Application Support': 22
+                    }
+                },
+                medium: {
+                    itAsRevenue: 2.8,
+                    perUser: 7200,
+                    bauProjectSplit: { bau: 80, project: 20 },
+                    categories: {
+                        'IT Fundamentals (Infrastructure)': 52,
+                        'Line of Business Applications': 48
+                    },
+                    l2Categories: {
+                        'Networks & Connectivity': 7,
+                        'Communications': 11,
+                        'End-User Computing': 14,
+                        'Licensing': 9,
+                        'IT Operations & Support': 22,
+                        'Business Continuity & DR': 2,
+                        'Engineering Tools': 4,
+                        'Field': 6,
+                        'Finance & ERP': 24,
+                        'Reporting & Analytics': 6,
+                        'Specialist Applications': 4,
+                        'LoB Application Support': 24
+                    }
+                },
+                large: {
+                    itAsRevenue: 3.2,
+                    perUser: 8500,
+                    bauProjectSplit: { bau: 75, project: 25 },
+                    categories: {
+                        'IT Fundamentals (Infrastructure)': 48,
+                        'Line of Business Applications': 52
+                    },
+                    l2Categories: {
+                        'Networks & Connectivity': 6,
+                        'Communications': 10,
+                        'End-User Computing': 12,
+                        'Licensing': 8,
+                        'IT Operations & Support': 18,
+                        'Business Continuity & DR': 3,
+                        'Engineering Tools': 5,
+                        'Field': 7,
+                        'Finance & ERP': 22,
+                        'Reporting & Analytics': 7,
+                        'Specialist Applications': 5,
+                        'LoB Application Support': 22
+                    }
+                }
+            },
+            all: {
+                small: {
+                    itAsRevenue: 3.0,
+                    perUser: 7000,
+                    bauProjectSplit: { bau: 82, project: 18 },
+                    categories: {
+                        'IT Fundamentals (Infrastructure)': 55,
+                        'Line of Business Applications': 45
+                    },
+                    l2Categories: {
+                        'Networks & Connectivity': 8,
+                        'Communications': 12,
+                        'End-User Computing': 16,
+                        'Licensing': 10,
+                        'IT Operations & Support': 22,
+                        'Business Continuity & DR': 2,
+                        'Engineering Tools': 3,
+                        'Field': 4,
+                        'Finance & ERP': 22,
+                        'Reporting & Analytics': 5,
+                        'Specialist Applications': 3,
+                        'LoB Application Support': 20
+                    }
+                },
+                medium: {
+                    itAsRevenue: 3.5,
+                    perUser: 8000,
+                    bauProjectSplit: { bau: 78, project: 22 },
+                    categories: {
+                        'IT Fundamentals (Infrastructure)': 52,
+                        'Line of Business Applications': 48
+                    },
+                    l2Categories: {
+                        'Networks & Connectivity': 7,
+                        'Communications': 11,
+                        'End-User Computing': 14,
+                        'Licensing': 9,
+                        'IT Operations & Support': 20,
+                        'Business Continuity & DR': 2,
+                        'Engineering Tools': 4,
+                        'Field': 5,
+                        'Finance & ERP': 22,
+                        'Reporting & Analytics': 6,
+                        'Specialist Applications': 4,
+                        'LoB Application Support': 22
+                    }
+                },
+                large: {
+                    itAsRevenue: 4.0,
+                    perUser: 9500,
+                    bauProjectSplit: { bau: 72, project: 28 },
+                    categories: {
+                        'IT Fundamentals (Infrastructure)': 48,
+                        'Line of Business Applications': 52
+                    },
+                    l2Categories: {
+                        'Networks & Connectivity': 6,
+                        'Communications': 10,
+                        'End-User Computing': 12,
+                        'Licensing': 8,
+                        'IT Operations & Support': 18,
+                        'Business Continuity & DR': 3,
+                        'Engineering Tools': 5,
+                        'Field': 6,
+                        'Finance & ERP': 20,
+                        'Reporting & Analytics': 7,
+                        'Specialist Applications': 5,
+                        'LoB Application Support': 22
+                    }
+                }
+            },
+            financial: {
+                small: { itAsRevenue: 5.0, perUser: 12000, bauProjectSplit: { bau: 75, project: 25 }, categories: { 'IT Fundamentals (Infrastructure)': 50, 'Line of Business Applications': 50 }, l2Categories: {} },
+                medium: { itAsRevenue: 6.5, perUser: 15000, bauProjectSplit: { bau: 70, project: 30 }, categories: { 'IT Fundamentals (Infrastructure)': 48, 'Line of Business Applications': 52 }, l2Categories: {} },
+                large: { itAsRevenue: 8.0, perUser: 20000, bauProjectSplit: { bau: 65, project: 35 }, categories: { 'IT Fundamentals (Infrastructure)': 45, 'Line of Business Applications': 55 }, l2Categories: {} }
+            },
+            healthcare: {
+                small: { itAsRevenue: 3.5, perUser: 8500, bauProjectSplit: { bau: 80, project: 20 }, categories: { 'IT Fundamentals (Infrastructure)': 55, 'Line of Business Applications': 45 }, l2Categories: {} },
+                medium: { itAsRevenue: 4.5, perUser: 10000, bauProjectSplit: { bau: 75, project: 25 }, categories: { 'IT Fundamentals (Infrastructure)': 52, 'Line of Business Applications': 48 }, l2Categories: {} },
+                large: { itAsRevenue: 5.5, perUser: 12000, bauProjectSplit: { bau: 70, project: 30 }, categories: { 'IT Fundamentals (Infrastructure)': 50, 'Line of Business Applications': 50 }, l2Categories: {} }
+            },
+            manufacturing: {
+                small: { itAsRevenue: 2.0, perUser: 5500, bauProjectSplit: { bau: 85, project: 15 }, categories: { 'IT Fundamentals (Infrastructure)': 58, 'Line of Business Applications': 42 }, l2Categories: {} },
+                medium: { itAsRevenue: 2.5, perUser: 6500, bauProjectSplit: { bau: 80, project: 20 }, categories: { 'IT Fundamentals (Infrastructure)': 55, 'Line of Business Applications': 45 }, l2Categories: {} },
+                large: { itAsRevenue: 3.0, perUser: 7500, bauProjectSplit: { bau: 75, project: 25 }, categories: { 'IT Fundamentals (Infrastructure)': 52, 'Line of Business Applications': 48 }, l2Categories: {} }
+            },
+            professional: {
+                small: { itAsRevenue: 4.0, perUser: 9000, bauProjectSplit: { bau: 78, project: 22 }, categories: { 'IT Fundamentals (Infrastructure)': 52, 'Line of Business Applications': 48 }, l2Categories: {} },
+                medium: { itAsRevenue: 5.0, perUser: 11000, bauProjectSplit: { bau: 73, project: 27 }, categories: { 'IT Fundamentals (Infrastructure)': 50, 'Line of Business Applications': 50 }, l2Categories: {} },
+                large: { itAsRevenue: 6.0, perUser: 13000, bauProjectSplit: { bau: 68, project: 32 }, categories: { 'IT Fundamentals (Infrastructure)': 48, 'Line of Business Applications': 52 }, l2Categories: {} }
+            },
+            retail: {
+                small: { itAsRevenue: 2.0, perUser: 5000, bauProjectSplit: { bau: 85, project: 15 }, categories: { 'IT Fundamentals (Infrastructure)': 58, 'Line of Business Applications': 42 }, l2Categories: {} },
+                medium: { itAsRevenue: 2.5, perUser: 6000, bauProjectSplit: { bau: 80, project: 20 }, categories: { 'IT Fundamentals (Infrastructure)': 55, 'Line of Business Applications': 45 }, l2Categories: {} },
+                large: { itAsRevenue: 3.0, perUser: 7000, bauProjectSplit: { bau: 75, project: 25 }, categories: { 'IT Fundamentals (Infrastructure)': 52, 'Line of Business Applications': 48 }, l2Categories: {} }
+            },
+            technology: {
+                small: { itAsRevenue: 6.0, perUser: 14000, bauProjectSplit: { bau: 70, project: 30 }, categories: { 'IT Fundamentals (Infrastructure)': 48, 'Line of Business Applications': 52 }, l2Categories: {} },
+                medium: { itAsRevenue: 8.0, perUser: 18000, bauProjectSplit: { bau: 65, project: 35 }, categories: { 'IT Fundamentals (Infrastructure)': 45, 'Line of Business Applications': 55 }, l2Categories: {} },
+                large: { itAsRevenue: 10.0, perUser: 22000, bauProjectSplit: { bau: 60, project: 40 }, categories: { 'IT Fundamentals (Infrastructure)': 42, 'Line of Business Applications': 58 }, l2Categories: {} }
+            },
+            utilities: {
+                small: { itAsRevenue: 2.5, perUser: 6500, bauProjectSplit: { bau: 82, project: 18 }, categories: { 'IT Fundamentals (Infrastructure)': 55, 'Line of Business Applications': 45 }, l2Categories: {} },
+                medium: { itAsRevenue: 3.0, perUser: 7500, bauProjectSplit: { bau: 78, project: 22 }, categories: { 'IT Fundamentals (Infrastructure)': 52, 'Line of Business Applications': 48 }, l2Categories: {} },
+                large: { itAsRevenue: 3.5, perUser: 9000, bauProjectSplit: { bau: 73, project: 27 }, categories: { 'IT Fundamentals (Infrastructure)': 50, 'Line of Business Applications': 50 }, l2Categories: {} }
+            }
+        };
+
+        // E8 maturity adjustments (multiplier for security-related spend)
+        const e8Adjustments = {
+            0: 0.8,  // Lower expected security spend
+            1: 1.0,  // Baseline
+            2: 1.15, // 15% higher expected security spend
+            3: 1.35  // 35% higher expected security spend
+        };
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('spend_data.json');
+                spendData = await response.json();
+
+                // Filter out user count rows
+                spendData = spendData.filter(row =>
+                    row['Category Level 1'] !== 'User Counts' &&
+                    row['Category Level 1'] !== undefined
+                );
+
+                initializeDashboard();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.querySelector('.container').innerHTML +=
+                    '<div class="card" style="background-color: #ffebee; color: #c62828;">' +
+                    '<h2>Error Loading Data</h2>' +
+                    '<p>Could not load spend_data.json. Please ensure the file exists in the same directory.</p>' +
+                    '</div>';
+            }
+        }
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            updateBenchmarks();
+        }
+
+        // Get current benchmark configuration
+        function getCurrentBenchmark() {
+            const industry = document.getElementById('industrySelect').value;
+            const size = document.getElementById('orgSizeSelect').value;
+            const e8Level = parseInt(document.getElementById('e8MaturityLevel').value);
+
+            let benchmark = industryBenchmarks[industry] ? industryBenchmarks[industry][size] : industryBenchmarks.all[size];
+
+            // Fall back to 'all' if specific industry doesn't have L2 categories
+            if (!benchmark.l2Categories || Object.keys(benchmark.l2Categories).length === 0) {
+                benchmark = {
+                    ...benchmark,
+                    l2Categories: industryBenchmarks.all[size].l2Categories
+                };
+            }
+
+            return benchmark;
+        }
+
+        // Get monthly values from row
+        function getMonthlyValues(row) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return months.map(month => parseFloat(row[month]) || 0);
+        }
+
+        // Calculate total annual spend
+        function calculateTotalSpend() {
+            let total = 0;
+            spendData.forEach(row => {
+                const monthlyValues = getMonthlyValues(row);
+                total += monthlyValues.reduce((sum, val) => sum + val, 0);
+            });
+            return total;
+        }
+
+        // Calculate spend by category level
+        function calculateSpendByCategory(level) {
+            const categoryField = 'Category Level ' + level;
+            const categoryTotals = {};
+
+            spendData.forEach(row => {
+                const category = row[categoryField] || 'Unknown';
+                const monthlyValues = getMonthlyValues(row);
+                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                categoryTotals[category] = (categoryTotals[category] || 0) + total;
+            });
+
+            return categoryTotals;
+        }
+
+        // Calculate spend for a filtered category
+        function calculateSpendForFilter(filterLevel, filterValue) {
+            const filterField = 'Category Level ' + filterLevel;
+            const nextLevel = filterLevel + 1;
+            const categoryField = 'Category Level ' + nextLevel;
+            const categoryTotals = {};
+
+            spendData.forEach(row => {
+                if (row[filterField] === filterValue) {
+                    const category = row[categoryField] || 'Unknown';
+                    const monthlyValues = getMonthlyValues(row);
+                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                    categoryTotals[category] = (categoryTotals[category] || 0) + total;
+                }
+            });
+
+            return categoryTotals;
+        }
+
+        // Update all benchmarks and charts
+        function updateBenchmarks() {
+            const benchmark = getCurrentBenchmark();
+            const totalSpend = calculateTotalSpend();
+            const annualRevenue = parseFloat(document.getElementById('annualRevenue').value) || 0;
+            const totalUsers = parseFloat(document.getElementById('totalUsers').value) || 1;
+            const e8Level = parseInt(document.getElementById('e8MaturityLevel').value);
+
+            // Update E8 badge
+            document.getElementById('e8MaturityBadge').textContent = 'Level ' + e8Level;
+
+            updateKPIs(benchmark, totalSpend, annualRevenue, totalUsers);
+            createOverallBenchmarkChart(benchmark, totalSpend, annualRevenue, totalUsers);
+            createBAUProjectChart(totalSpend);
+            createBAUProjectBenchmarkChart(benchmark, totalSpend);
+            createCategoryBenchmarkChart();
+            updateBenchmarkTable();
+            updateAreasOfInterest();
+            createE8CorrelationChart();
+            updateEfficiencyIndicators(benchmark, totalSpend, annualRevenue, totalUsers);
+        }
+
+        // Update KPI cards
+        function updateKPIs(benchmark, totalSpend, annualRevenue, totalUsers) {
+            const itAsRevenue = annualRevenue > 0 ? (totalSpend / annualRevenue) * 100 : 0;
+            const perUser = totalUsers > 0 ? totalSpend / totalUsers : 0;
+            const revenueVariance = ((itAsRevenue - benchmark.itAsRevenue) / benchmark.itAsRevenue) * 100;
+            const perUserVariance = ((perUser - benchmark.perUser) / benchmark.perUser) * 100;
+
+            const kpiHTML = `
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">Total IT Spend</div>
+                    <div class="kpi-value">$${(totalSpend / 1000000).toFixed(2)}M</div>
+                    <div class="kpi-comparison">Annual</div>
+                </div>
+
+                <div class="kpi-card ${revenueVariance > 10 ? 'below' : revenueVariance < -10 ? 'above' : ''}">
+                    <div class="kpi-label">IT as % of Revenue</div>
+                    <div class="kpi-value">${itAsRevenue.toFixed(2)}%</div>
+                    <div class="kpi-comparison">Benchmark: ${benchmark.itAsRevenue}% | ${revenueVariance > 0 ? '+' : ''}${revenueVariance.toFixed(0)}%</div>
+                </div>
+
+                <div class="kpi-card ${perUserVariance > 15 ? 'below' : perUserVariance < -15 ? 'above' : ''}">
+                    <div class="kpi-label">IT Spend per User</div>
+                    <div class="kpi-value">$${perUser.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">Benchmark: $${benchmark.perUser.toLocaleString()} | ${perUserVariance > 0 ? '+' : ''}${perUserVariance.toFixed(0)}%</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">BAU / Project Split</div>
+                    <div class="kpi-value">100% / 0%</div>
+                    <div class="kpi-comparison">Benchmark: ${benchmark.bauProjectSplit.bau}% / ${benchmark.bauProjectSplit.project}%</div>
+                </div>
+            `;
+
+            document.getElementById('kpiGrid').innerHTML = kpiHTML;
+        }
+
+        // Create overall benchmark chart
+        function createOverallBenchmarkChart(benchmark, totalSpend, annualRevenue, totalUsers) {
+            const ctx = document.getElementById('overallBenchmarkChart').getContext('2d');
+
+            if (charts.overall) {
+                charts.overall.destroy();
+            }
+
+            const itAsRevenue = annualRevenue > 0 ? (totalSpend / annualRevenue) * 100 : 0;
+            const perUser = totalUsers > 0 ? totalSpend / totalUsers : 0;
+
+            charts.overall = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['IT as % of Revenue', 'IT Spend per User (÷100)'],
+                    datasets: [
+                        {
+                            label: 'Your Organization',
+                            data: [itAsRevenue, perUser / 100],
+                            backgroundColor: '#092c50',
+                            borderWidth: 0,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Industry Benchmark',
+                            data: [benchmark.itAsRevenue, benchmark.perUser / 100],
+                            backgroundColor: '#8bd8bd',
+                            borderWidth: 0,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Benchmark Line',
+                            data: [benchmark.itAsRevenue, benchmark.perUser / 100],
+                            type: 'line',
+                            borderColor: '#dc3545',
+                            borderWidth: 3,
+                            borderDash: [5, 5],
+                            pointRadius: 6,
+                            pointBackgroundColor: '#dc3545',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label;
+                                    const value = context.parsed.y;
+                                    if (context.dataIndex === 0) {
+                                        return label + ': ' + value.toFixed(2) + '%';
+                                    } else {
+                                        return label + ': $' + (value * 100).toLocaleString(undefined, {maximumFractionDigits: 0});
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create BAU vs Project chart
+        function createBAUProjectChart(totalSpend) {
+            const ctx = document.getElementById('bauProjectChart').getContext('2d');
+
+            if (charts.bauProject) {
+                charts.bauProject.destroy();
+            }
+
+            // Currently all data is BAU
+            const bauSpend = totalSpend;
+            const projectSpend = 0;
+
+            charts.bauProject = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['BAU (Run)', 'Projects (Grow/Transform)'],
+                    datasets: [{
+                        data: [bauSpend, projectSpend],
+                        backgroundColor: ['#092c50', '#8bd8bd'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                    return context.label + ': $' + context.parsed.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create BAU vs Project benchmark comparison chart
+        function createBAUProjectBenchmarkChart(benchmark, totalSpend) {
+            const ctx = document.getElementById('bauProjectBenchmarkChart').getContext('2d');
+
+            if (charts.bauProjectBenchmark) {
+                charts.bauProjectBenchmark.destroy();
+            }
+
+            charts.bauProjectBenchmark = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Your Organization', 'Benchmark'],
+                    datasets: [
+                        {
+                            label: 'BAU (Run)',
+                            data: [100, benchmark.bauProjectSplit.bau],
+                            backgroundColor: '#092c50',
+                            stack: 'stack1'
+                        },
+                        {
+                            label: 'Projects (Grow/Transform)',
+                            data: [0, benchmark.bauProjectSplit.project],
+                            backgroundColor: '#8bd8bd',
+                            stack: 'stack1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create category benchmark chart with drill-down
+        function createCategoryBenchmarkChart() {
+            const ctx = document.getElementById('categoryBenchmarkChart').getContext('2d');
+            const benchmark = getCurrentBenchmark();
+            const totalSpend = calculateTotalSpend();
+
+            if (charts.categoryBenchmark) {
+                charts.categoryBenchmark.destroy();
+            }
+
+            let categorySpend = {};
+            let benchmarkData = {};
+            let chartLabels = [];
+            let yourData = [];
+            let benchmarkValues = [];
+            let targetValues = [];
+
+            if (currentDrillLevel === 1) {
+                // Level 1 categories
+                categorySpend = calculateSpendByCategory(1);
+                benchmarkData = benchmark.categories;
+
+                Object.entries(categorySpend)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([category, spend]) => {
+                        chartLabels.push(category);
+                        const spendPercent = (spend / totalSpend) * 100;
+                        yourData.push(spendPercent);
+                        const benchmarkPercent = benchmarkData[category] || 50;
+                        benchmarkValues.push(benchmarkPercent);
+                        targetValues.push(benchmarkPercent * 0.9); // P50 target at 90% of benchmark
+                    });
+            } else if (currentDrillLevel === 2) {
+                // Level 2 categories within selected L1
+                categorySpend = calculateSpendForFilter(1, currentFilter);
+                const l1Spend = Object.values(categorySpend).reduce((sum, val) => sum + val, 0);
+                benchmarkData = benchmark.l2Categories;
+
+                Object.entries(categorySpend)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([category, spend]) => {
+                        chartLabels.push(category);
+                        const spendPercent = (spend / totalSpend) * 100;
+                        yourData.push(spendPercent);
+                        const benchmarkPercent = (benchmarkData[category] || 10) * (l1Spend / totalSpend);
+                        benchmarkValues.push(benchmarkPercent);
+                        targetValues.push(benchmarkPercent * 0.9);
+                    });
+            } else if (currentDrillLevel === 3) {
+                // Level 3 categories within selected L2
+                categorySpend = calculateSpendForFilter(2, currentFilter);
+
+                Object.entries(categorySpend)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([category, spend]) => {
+                        chartLabels.push(category);
+                        const spendPercent = (spend / totalSpend) * 100;
+                        yourData.push(spendPercent);
+                        // Estimate benchmark distribution
+                        const avgBenchmark = spendPercent * 0.9;
+                        benchmarkValues.push(avgBenchmark);
+                        targetValues.push(avgBenchmark * 0.9);
+                    });
+            }
+
+            // Update navigation
+            updateDrillNavigation();
+
+            charts.categoryBenchmark = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [
+                        {
+                            label: 'Your Spend (%)',
+                            data: yourData,
+                            backgroundColor: '#092c50',
+                            borderWidth: 0,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Benchmark (%)',
+                            data: benchmarkValues,
+                            backgroundColor: '#8bd8bd',
+                            borderWidth: 0,
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Target (P50)',
+                            data: targetValues,
+                            type: 'line',
+                            borderColor: '#dc3545',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 4,
+                            pointBackgroundColor: '#dc3545',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: function(event, elements) {
+                        if (elements.length > 0 && currentDrillLevel < 3) {
+                            const index = elements[0].index;
+                            const clickedLabel = chartLabels[index];
+                            drillDown(clickedLabel);
+                        }
+                    },
+                    onHover: function(event, elements) {
+                        event.native.target.style.cursor = (elements.length > 0 && currentDrillLevel < 3) ? 'pointer' : 'default';
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let text = context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                    if (currentDrillLevel < 3 && context.dataset.type !== 'line') {
+                                        text += ' (click to drill down)';
+                                    }
+                                    return text;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(0) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Drill down to next level
+        function drillDown(category) {
+            drillPath.push({ level: currentDrillLevel, filter: currentFilter });
+            currentFilter = category;
+            currentDrillLevel++;
+            createCategoryBenchmarkChart();
+        }
+
+        // Go back one level
+        function drillBack() {
+            if (drillPath.length > 0) {
+                const previous = drillPath.pop();
+                currentDrillLevel = previous.level;
+                currentFilter = previous.filter;
+                createCategoryBenchmarkChart();
+            }
+        }
+
+        // Update drill navigation
+        function updateDrillNavigation() {
+            const nav = document.getElementById('categoryDrillNav');
+            const breadcrumb = document.getElementById('categoryBreadcrumb');
+
+            if (currentDrillLevel === 1) {
+                nav.style.display = 'none';
+            } else {
+                nav.style.display = 'flex';
+                let breadcrumbHtml = '<span class="level">All Categories</span>';
+
+                drillPath.forEach(item => {
+                    if (item.filter) {
+                        breadcrumbHtml += ' &rarr; <span class="level">' + item.filter + '</span>';
+                    }
+                });
+
+                breadcrumbHtml += ' &rarr; <span class="current">' + currentFilter + '</span>';
+                breadcrumb.innerHTML = breadcrumbHtml;
+            }
+        }
+
+        // Update benchmark table
+        function updateBenchmarkTable() {
+            const benchmark = getCurrentBenchmark();
+            const totalSpend = calculateTotalSpend();
+            const categorySpend = calculateSpendByCategory(2);
+
+            const tbody = document.getElementById('benchmarkTableBody');
+            let html = '';
+
+            Object.entries(categorySpend)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([category, spend]) => {
+                    const spendPercent = (spend / totalSpend) * 100;
+                    const benchmarkPercent = benchmark.l2Categories[category] || 10;
+                    const variance = ((spendPercent - benchmarkPercent) / benchmarkPercent) * 100;
+                    const varianceClass = variance > 15 ? 'above' : variance < -15 ? 'below' : 'at';
+                    const statusText = variance > 15 ? 'Above' : variance < -15 ? 'Below' : 'At Benchmark';
+
+                    html += `
+                        <tr>
+                            <td><strong>${category}</strong></td>
+                            <td>$${spend.toLocaleString(undefined, {maximumFractionDigits: 0})} (${spendPercent.toFixed(1)}%)</td>
+                            <td>${benchmarkPercent.toFixed(1)}%</td>
+                            <td>
+                                <div class="variance-indicator">
+                                    <div class="variance-bar">
+                                        <div class="variance-fill ${varianceClass}" style="width: ${Math.min(Math.abs(variance), 100)}%;"></div>
+                                    </div>
+                                    <span class="variance-text ${varianceClass}">${variance > 0 ? '+' : ''}${variance.toFixed(0)}%</span>
+                                </div>
+                            </td>
+                            <td><span class="benchmark-badge ${varianceClass}">${statusText}</span></td>
+                        </tr>
+                    `;
+                });
+
+            tbody.innerHTML = html;
+        }
+
+        // Update areas of interest
+        function updateAreasOfInterest() {
+            const benchmark = getCurrentBenchmark();
+            const totalSpend = calculateTotalSpend();
+            const categorySpend = calculateSpendByCategory(2);
+
+            const areasDiv = document.getElementById('areasOfInterest');
+            let html = '<div class="kpi-grid">';
+
+            // Find categories significantly above or below benchmark
+            const highlights = [];
+
+            Object.entries(categorySpend).forEach(([category, spend]) => {
+                const spendPercent = (spend / totalSpend) * 100;
+                const benchmarkPercent = benchmark.l2Categories[category] || 10;
+                const variance = ((spendPercent - benchmarkPercent) / benchmarkPercent) * 100;
+
+                if (Math.abs(variance) > 20) {
+                    highlights.push({
+                        category,
+                        spend,
+                        spendPercent,
+                        benchmarkPercent,
+                        variance,
+                        above: variance > 0
+                    });
+                }
+            });
+
+            // Sort by absolute variance
+            highlights.sort((a, b) => Math.abs(b.variance) - Math.abs(a.variance));
+
+            // Show top 4 highlights
+            highlights.slice(0, 4).forEach(item => {
+                const cardClass = item.above ? 'warning' : 'above';
+                const icon = item.above ? 'Above Benchmark' : 'Below Benchmark';
+                const description = item.above
+                    ? 'May indicate over-investment or inefficiency'
+                    : 'May indicate efficiency or under-investment';
+
+                html += `
+                    <div class="kpi-card ${cardClass}">
+                        <div class="kpi-label">${item.category}</div>
+                        <div class="kpi-value">${item.variance > 0 ? '+' : ''}${item.variance.toFixed(0)}%</div>
+                        <div class="kpi-comparison">${icon} - ${description}</div>
+                    </div>
+                `;
+            });
+
+            if (highlights.length === 0) {
+                html += `
+                    <div class="kpi-card highlight">
+                        <div class="kpi-label">All Categories</div>
+                        <div class="kpi-value">Within Range</div>
+                        <div class="kpi-comparison">All categories are within 20% of benchmark</div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            areasDiv.innerHTML = html;
+        }
+
+        // Create E8 correlation chart
+        function createE8CorrelationChart() {
+            const ctx = document.getElementById('e8CorrelationChart').getContext('2d');
+            const e8Level = parseInt(document.getElementById('e8MaturityLevel').value);
+
+            if (charts.e8Correlation) {
+                charts.e8Correlation.destroy();
+            }
+
+            // Show expected security spend multiplier by maturity level
+            const labels = ['Level 0', 'Level 1', 'Level 2', 'Level 3'];
+            const multipliers = [0.8, 1.0, 1.15, 1.35];
+            const colors = labels.map((_, i) => i === e8Level ? '#092c50' : '#8bd8bd');
+
+            charts.e8Correlation = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Expected Security Spend Multiplier',
+                        data: multipliers,
+                        backgroundColor: colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Expected: ' + (context.parsed.y * 100).toFixed(0) + '% of baseline';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1.5,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value * 100).toFixed(0) + '%';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Expected Security Spend'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update efficiency indicators
+        function updateEfficiencyIndicators(benchmark, totalSpend, annualRevenue, totalUsers) {
+            const grid = document.getElementById('efficiencyGrid');
+
+            const monthlySpend = totalSpend / 12;
+            const perUserMonthly = totalUsers > 0 ? monthlySpend / totalUsers : 0;
+            const infrastructureRatio = calculateInfrastructureRatio();
+            const vendorConcentration = calculateVendorConcentration();
+
+            const html = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Monthly Spend per User</div>
+                    <div class="kpi-value">$${perUserMonthly.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+                    <div class="kpi-comparison">Lower indicates higher efficiency</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Infrastructure vs Apps Ratio</div>
+                    <div class="kpi-value">${infrastructureRatio.toFixed(0)}:${(100-infrastructureRatio).toFixed(0)}</div>
+                    <div class="kpi-comparison">Benchmark: ~${benchmark.categories['IT Fundamentals (Infrastructure)']}:${benchmark.categories['Line of Business Applications']}</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">Top 5 Vendor Concentration</div>
+                    <div class="kpi-value">${vendorConcentration.toFixed(0)}%</div>
+                    <div class="kpi-comparison">${vendorConcentration > 80 ? 'High concentration - negotiation leverage' : 'Distributed vendor base'}</div>
+                </div>
+
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">Digital Maturity Indicator</div>
+                    <div class="kpi-value">${calculateDigitalMaturity()}</div>
+                    <div class="kpi-comparison">Based on cloud adoption & automation spend</div>
+                </div>
+            `;
+
+            grid.innerHTML = html;
+        }
+
+        // Helper functions
+        function calculateInfrastructureRatio() {
+            const categorySpend = calculateSpendByCategory(1);
+            const totalSpend = calculateTotalSpend();
+            const infraSpend = categorySpend['IT Fundamentals (Infrastructure)'] || 0;
+            return totalSpend > 0 ? (infraSpend / totalSpend) * 100 : 50;
+        }
+
+        function calculateVendorConcentration() {
+            const vendorTotals = {};
+            spendData.forEach(row => {
+                const vendor = row['Vendor'] || 'Unknown';
+                const monthlyValues = getMonthlyValues(row);
+                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
+                vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
+            });
+
+            const sortedVendors = Object.values(vendorTotals).sort((a, b) => b - a);
+            const top5 = sortedVendors.slice(0, 5).reduce((sum, val) => sum + val, 0);
+            const total = sortedVendors.reduce((sum, val) => sum + val, 0);
+
+            return total > 0 ? (top5 / total) * 100 : 0;
+        }
+
+        function calculateDigitalMaturity() {
+            // Simple heuristic based on cloud/modern tech spend
+            const categorySpend = calculateSpendByCategory(3);
+            const cloudIndicators = ['Microsoft', 'M365', 'Azure', 'Fabric', 'Power'];
+            let cloudSpend = 0;
+            let totalSpend = 0;
+
+            Object.entries(categorySpend).forEach(([category, spend]) => {
+                totalSpend += spend;
+                if (cloudIndicators.some(indicator => category.includes(indicator))) {
+                    cloudSpend += spend;
+                }
+            });
+
+            const ratio = totalSpend > 0 ? (cloudSpend / totalSpend) * 100 : 0;
+
+            if (ratio > 40) return 'Advanced';
+            if (ratio > 25) return 'Intermediate';
+            if (ratio > 10) return 'Developing';
+            return 'Traditional';
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
