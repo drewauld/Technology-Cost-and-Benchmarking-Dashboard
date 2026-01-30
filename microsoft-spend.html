@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft Spend Analysis | TechElevate</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary-navy: #092c50;
+            --accent-mint: #8bd8bd;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --border-gray: #e0e0e0;
+            --text-dark: #333333;
+            --text-light: #666666;
+            /* Microsoft colors */
+            --ms-blue: #0078d4;
+            --ms-orange: #f25022;
+            --ms-green: #7fba00;
+            --ms-yellow: #ffb900;
+            --ms-red: #f25022;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            background-color: var(--light-gray);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            color: var(--primary-navy);
+        }
+
+        .header {
+            background-color: var(--primary-navy);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            color: var(--white);
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header .subtitle {
+            color: var(--accent-mint);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-mint);
+            color: var(--primary-navy);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: #6fc4a8;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--ms-blue);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-banner {
+            background-color: rgba(0, 120, 212, 0.1);
+            border-left: 4px solid var(--ms-blue);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-banner p {
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        /* Microsoft Logo Colors Header */
+        .ms-header-accent {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .ms-header-accent span {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--ms-blue) 0%, #106ebe 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card.highlight {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
+        }
+
+        .kpi-card.m365 {
+            background: linear-gradient(135deg, var(--ms-orange) 0%, #d94717 100%);
+        }
+
+        .kpi-card.power {
+            background: linear-gradient(135deg, var(--ms-yellow) 0%, #e6a600 100%);
+            color: var(--primary-navy);
+        }
+
+        .kpi-card.teams {
+            background: linear-gradient(135deg, #6264a7 0%, #4b4d8f 100%);
+        }
+
+        .kpi-card.other {
+            background: linear-gradient(135deg, var(--ms-green) 0%, #6ba100 100%);
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 0.3rem;
+        }
+
+        .kpi-comparison {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Product Table */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .product-table th {
+            background-color: var(--ms-blue);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .product-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .product-table tbody tr:hover {
+            background-color: rgba(0, 120, 212, 0.05);
+        }
+
+        .product-table .number {
+            text-align: right;
+            font-weight: 700;
+            color: var(--primary-navy);
+        }
+
+        /* Product Category Badge */
+        .product-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .product-badge.m365 {
+            background-color: rgba(242, 80, 34, 0.15);
+            color: var(--ms-orange);
+        }
+
+        .product-badge.power {
+            background-color: rgba(255, 185, 0, 0.2);
+            color: #9a7000;
+        }
+
+        .product-badge.teams {
+            background-color: rgba(98, 100, 167, 0.15);
+            color: #6264a7;
+        }
+
+        .product-badge.other {
+            background-color: rgba(127, 186, 0, 0.15);
+            color: #5a8400;
+        }
+
+        /* Optimization Cards */
+        .optimization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .optimization-card {
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: border-color 0.3s;
+        }
+
+        .optimization-card:hover {
+            border-color: var(--ms-blue);
+        }
+
+        .optimization-card h4 {
+            color: var(--ms-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .optimization-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .optimization-card .savings {
+            font-weight: 700;
+            color: var(--ms-green);
+            font-size: 1.1rem;
+        }
+
+        /* License Utilization Bar */
+        .utilization-bar {
+            background-color: var(--border-gray);
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .utilization-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .utilization-fill.high {
+            background-color: var(--ms-green);
+        }
+
+        .utilization-fill.medium {
+            background-color: var(--ms-yellow);
+        }
+
+        .utilization-fill.low {
+            background-color: var(--ms-red);
+        }
+
+        /* Config Section */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .config-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-group label {
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .config-group .help-text {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .config-group input {
+            padding: 0.75rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .config-group input:focus {
+            outline: none;
+            border-color: var(--ms-blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="ms-header-accent">
+                    <span style="background-color: #f25022;"></span>
+                    <span style="background-color: #7fba00;"></span>
+                    <span style="background-color: #00a4ef;"></span>
+                    <span style="background-color: #ffb900;"></span>
+                </div>
+                <h1>Microsoft Spend Analysis</h1>
+                <p class="subtitle">TechElevate | Licensing & Cloud Cost Analysis</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">
+                    <span>&larr;</span> Cost Dashboard
+                </a>
+                <a href="spend-benchmarking.html" class="nav-link">
+                    IT Benchmarking
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Summary KPIs -->
+        <div class="kpi-grid" id="summaryKpis">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Microsoft Share of Spend -->
+        <div class="card">
+            <h2>Microsoft Share of Total IT Spend</h2>
+            <div class="info-banner">
+                <p>Microsoft products typically represent 15-30% of total IT spend for organizations heavily invested in the Microsoft ecosystem. This includes M365 licensing, Power Platform, Azure consumption, and related services.</p>
+            </div>
+            <div class="charts-row">
+                <div>
+                    <h3>Share of Total IT Spend</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="msShareChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Microsoft Product Mix</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="msProductMixChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Trend -->
+        <div class="card">
+            <h2>Microsoft Spend Trend (Monthly)</h2>
+            <div class="chart-container">
+                <canvas id="msTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- M365 Licensing Deep Dive -->
+        <div class="card">
+            <h2>M365 Licensing Analysis</h2>
+            <div class="info-banner">
+                <p>Microsoft 365 licensing typically makes up the largest portion of Microsoft spend. Understanding the license mix and per-user costs helps identify optimization opportunities.</p>
+            </div>
+            <div class="config-grid">
+                <div class="config-group">
+                    <label for="infoWorkers">Information Workers (Office Users)</label>
+                    <input type="number" id="infoWorkers" value="215" min="1" onchange="updateAnalysis()">
+                    <span class="help-text">Users with M365 Business Premium</span>
+                </div>
+                <div class="config-group">
+                    <label for="mobileWorkers">Mobile Workers (Field Users)</label>
+                    <input type="number" id="mobileWorkers" value="215" min="1" onchange="updateAnalysis()">
+                    <span class="help-text">Users with M365 F1 / E1 licenses</span>
+                </div>
+            </div>
+            <div class="charts-row" style="margin-top: 1.5rem;">
+                <div>
+                    <h3>License Cost per User Type</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="licensePerUserChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>M365 Component Breakdown</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="m365BreakdownChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Power Platform Analysis -->
+        <div class="card">
+            <h2>Power Platform & Analytics</h2>
+            <div class="info-banner">
+                <p>Power Platform investments (Power BI, Power Apps, Power Automate, Dataverse) and Fabric represent modern data and automation capabilities.</p>
+            </div>
+            <div class="charts-row">
+                <div>
+                    <h3>Power Platform Spend Distribution</h3>
+                    <div class="chart-container" style="height: 280px;">
+                        <canvas id="powerPlatformChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <div class="kpi-grid" style="margin-bottom: 1rem;">
+                        <div class="kpi-card power">
+                            <div class="kpi-label">Power BI</div>
+                            <div class="kpi-value" id="powerBiSpend">$0</div>
+                            <div class="kpi-comparison">Annual</div>
+                        </div>
+                        <div class="kpi-card power">
+                            <div class="kpi-label">Fabric</div>
+                            <div class="kpi-value" id="fabricSpend">$0</div>
+                            <div class="kpi-comparison">Annual</div>
+                        </div>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card power">
+                            <div class="kpi-label">Power Apps</div>
+                            <div class="kpi-value" id="powerAppsSpend">$0</div>
+                            <div class="kpi-comparison">Annual</div>
+                        </div>
+                        <div class="kpi-card power">
+                            <div class="kpi-label">Dataverse</div>
+                            <div class="kpi-value" id="dataverseSpend">$0</div>
+                            <div class="kpi-comparison">Annual</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Product Table -->
+        <div class="card">
+            <h2>Detailed Microsoft Product Spend</h2>
+            <table class="product-table" id="productTable">
+                <thead>
+                    <tr>
+                        <th style="width: 35%;">Product</th>
+                        <th style="width: 15%;">Category</th>
+                        <th style="width: 15%;">Monthly Avg</th>
+                        <th style="width: 15%;">Annual Total</th>
+                        <th style="width: 20%;">% of MS Spend</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Per-User Cost Analysis -->
+        <div class="card">
+            <h2>Per-User Cost Analysis</h2>
+            <div class="info-banner">
+                <p>Understanding the true per-user cost of Microsoft services helps with budgeting and identifying potential savings through license optimization or right-sizing.</p>
+            </div>
+            <div class="charts-row">
+                <div>
+                    <h3>Monthly Cost per User</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="perUserCostChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Cost Comparison: Info Workers vs Mobile Workers</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="userTypeComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Optimization Opportunities -->
+        <div class="card">
+            <h2>Optimization Opportunities</h2>
+            <div class="info-banner">
+                <p>Based on your current Microsoft spend patterns, these areas may offer opportunities for cost optimization or improved value realization.</p>
+            </div>
+            <div class="optimization-grid" id="optimizationGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Benchmark Comparison -->
+        <div class="card">
+            <h2>Microsoft Spend Benchmarks</h2>
+            <div class="charts-row">
+                <div>
+                    <h3>Your Spend vs Industry Benchmark</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="benchmarkChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>License Cost per User Benchmark</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="licenseBenchmarkChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        let spendData = [];
+        let charts = {};
+        let microsoftData = {
+            products: [],
+            totalMs: 0,
+            totalIt: 0,
+            m365: { infoWorker: 0, mobileWorker: 0, copilot: 0, storage: 0, exchange: 0, visio: 0 },
+            power: { powerBi: 0, fabric: 0, powerApps: 0, dataverse: 0 },
+            teams: { fixed: 0, teamsRoom: 0 },
+            other: { project: 0 }
+        };
+
+        // Microsoft product categorization
+        const productCategories = {
+            'M365 - Information Workers': { category: 'm365', label: 'M365' },
+            'M365 - Mobile Workers': { category: 'm365', label: 'M365' },
+            'Microsoft Copilot': { category: 'm365', label: 'M365' },
+            'Visio Plan 2': { category: 'other', label: 'Other' },
+            'Exchange Online P2': { category: 'm365', label: 'M365' },
+            'Extra file storage': { category: 'm365', label: 'M365' },
+            'Fixed (MS Teams Licensing)': { category: 'teams', label: 'Teams' },
+            'Teams Room': { category: 'teams', label: 'Teams' },
+            'Fabric': { category: 'power', label: 'Power' },
+            'Power BI Licensing': { category: 'power', label: 'Power' },
+            'MS Project': { category: 'other', label: 'Other' },
+            'Dataverse': { category: 'power', label: 'Power' },
+            'Power Apps': { category: 'power', label: 'Power' }
+        };
+
+        // Benchmarks (per user per month)
+        const benchmarks = {
+            m365InfoWorker: 32, // M365 Business Premium benchmark
+            m365MobileWorker: 8, // M365 F1/E1 benchmark
+            totalMsPerUser: 45, // Total MS spend per user benchmark
+            msShareOfIt: 22 // % of total IT spend
+        };
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('spend_data.json');
+                spendData = await response.json();
+                spendData = spendData.filter(row => row['Category Level 1'] !== 'User Counts' && row['Category Level 1'] !== undefined);
+                processData();
+                initializeDashboard();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Process data to extract Microsoft spend
+        function processData() {
+            microsoftData.products = [];
+            microsoftData.totalMs = 0;
+            microsoftData.totalIt = 0;
+
+            // Reset category totals
+            Object.keys(microsoftData.m365).forEach(k => microsoftData.m365[k] = 0);
+            Object.keys(microsoftData.power).forEach(k => microsoftData.power[k] = 0);
+            Object.keys(microsoftData.teams).forEach(k => microsoftData.teams[k] = 0);
+            Object.keys(microsoftData.other).forEach(k => microsoftData.other[k] = 0);
+
+            spendData.forEach(row => {
+                const monthlyValues = getMonthlyValues(row);
+                const annual = monthlyValues.reduce((sum, val) => sum + val, 0);
+                microsoftData.totalIt += annual;
+
+                const vendor = row['Vendor'] || '';
+                const l3 = row['Category Level 3'] || '';
+
+                // Check if Microsoft vendor
+                if (vendor.includes('Microsoft')) {
+                    microsoftData.totalMs += annual;
+                    microsoftData.products.push({
+                        name: l3,
+                        vendor: vendor,
+                        monthly: monthlyValues,
+                        annual: annual,
+                        monthlyAvg: annual / 12,
+                        category: getCategoryForProduct(l3)
+                    });
+
+                    // Categorize by product type
+                    if (l3.includes('M365 - Information Workers')) {
+                        microsoftData.m365.infoWorker = annual;
+                    } else if (l3.includes('M365 - Mobile Workers')) {
+                        microsoftData.m365.mobileWorker = annual;
+                    } else if (l3.includes('Copilot')) {
+                        microsoftData.m365.copilot = annual;
+                    } else if (l3.includes('Exchange')) {
+                        microsoftData.m365.exchange = annual;
+                    } else if (l3.includes('storage')) {
+                        microsoftData.m365.storage = annual;
+                    } else if (l3.includes('Visio')) {
+                        microsoftData.m365.visio = annual;
+                    } else if (l3.includes('Power BI')) {
+                        microsoftData.power.powerBi = annual;
+                    } else if (l3.includes('Fabric')) {
+                        microsoftData.power.fabric = annual;
+                    } else if (l3.includes('Power Apps')) {
+                        microsoftData.power.powerApps = annual;
+                    } else if (l3.includes('Dataverse')) {
+                        microsoftData.power.dataverse = annual;
+                    } else if (l3.includes('MS Project')) {
+                        microsoftData.other.project = annual;
+                    } else if (l3.includes('Fixed') || l3.includes('Teams Room')) {
+                        if (l3.includes('Teams Room')) {
+                            microsoftData.teams.teamsRoom = annual;
+                        } else {
+                            microsoftData.teams.fixed = annual;
+                        }
+                    }
+                }
+            });
+
+            // Sort products by annual spend
+            microsoftData.products.sort((a, b) => b.annual - a.annual);
+        }
+
+        // Get monthly values
+        function getMonthlyValues(row) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return months.map(month => parseFloat(row[month]) || 0);
+        }
+
+        // Get category for product
+        function getCategoryForProduct(productName) {
+            for (const [key, value] of Object.entries(productCategories)) {
+                if (productName.includes(key)) {
+                    return value;
+                }
+            }
+            return { category: 'other', label: 'Other' };
+        }
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            updateKPIs();
+            createMsShareChart();
+            createMsProductMixChart();
+            createMsTrendChart();
+            createLicensePerUserChart();
+            createM365BreakdownChart();
+            createPowerPlatformChart();
+            updatePowerPlatformKpis();
+            populateProductTable();
+            createPerUserCostChart();
+            createUserTypeComparisonChart();
+            updateOptimizationOpportunities();
+            createBenchmarkChart();
+            createLicenseBenchmarkChart();
+        }
+
+        // Update analysis when inputs change
+        function updateAnalysis() {
+            createLicensePerUserChart();
+            createPerUserCostChart();
+            createUserTypeComparisonChart();
+            createLicenseBenchmarkChart();
+            updateOptimizationOpportunities();
+        }
+
+        // Update KPIs
+        function updateKPIs() {
+            const msPercent = (microsoftData.totalMs / microsoftData.totalIt * 100).toFixed(1);
+            const m365Total = Object.values(microsoftData.m365).reduce((sum, val) => sum + val, 0);
+            const powerTotal = Object.values(microsoftData.power).reduce((sum, val) => sum + val, 0);
+            const teamsTotal = Object.values(microsoftData.teams).reduce((sum, val) => sum + val, 0);
+            const otherTotal = Object.values(microsoftData.other).reduce((sum, val) => sum + val, 0);
+
+            const html = `
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">Total Microsoft Spend</div>
+                    <div class="kpi-value">$${(microsoftData.totalMs / 1000).toFixed(0)}k</div>
+                    <div class="kpi-comparison">${msPercent}% of total IT spend</div>
+                </div>
+                <div class="kpi-card m365">
+                    <div class="kpi-label">M365 Licensing</div>
+                    <div class="kpi-value">$${(m365Total / 1000).toFixed(0)}k</div>
+                    <div class="kpi-comparison">${(m365Total / microsoftData.totalMs * 100).toFixed(0)}% of MS spend</div>
+                </div>
+                <div class="kpi-card power">
+                    <div class="kpi-label">Power Platform</div>
+                    <div class="kpi-value">$${(powerTotal / 1000).toFixed(0)}k</div>
+                    <div class="kpi-comparison">${(powerTotal / microsoftData.totalMs * 100).toFixed(0)}% of MS spend</div>
+                </div>
+                <div class="kpi-card teams">
+                    <div class="kpi-label">Teams / Communications</div>
+                    <div class="kpi-value">$${(teamsTotal / 1000).toFixed(0)}k</div>
+                    <div class="kpi-comparison">${(teamsTotal / microsoftData.totalMs * 100).toFixed(0)}% of MS spend</div>
+                </div>
+                <div class="kpi-card other">
+                    <div class="kpi-label">Other MS Products</div>
+                    <div class="kpi-value">$${((otherTotal + microsoftData.m365.visio) / 1000).toFixed(0)}k</div>
+                    <div class="kpi-comparison">Project, Visio, etc.</div>
+                </div>
+            `;
+
+            document.getElementById('summaryKpis').innerHTML = html;
+        }
+
+        // Create MS Share Chart
+        function createMsShareChart() {
+            const ctx = document.getElementById('msShareChart').getContext('2d');
+            if (charts.msShare) charts.msShare.destroy();
+
+            const otherSpend = microsoftData.totalIt - microsoftData.totalMs;
+
+            charts.msShare = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Microsoft', 'Other Vendors'],
+                    datasets: [{
+                        data: [microsoftData.totalMs, otherSpend],
+                        backgroundColor: ['#0078d4', '#e0e0e0'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percent = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: $${(context.parsed / 1000).toFixed(0)}k (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create MS Product Mix Chart
+        function createMsProductMixChart() {
+            const ctx = document.getElementById('msProductMixChart').getContext('2d');
+            if (charts.msProductMix) charts.msProductMix.destroy();
+
+            const m365Total = Object.values(microsoftData.m365).reduce((sum, val) => sum + val, 0);
+            const powerTotal = Object.values(microsoftData.power).reduce((sum, val) => sum + val, 0);
+            const teamsTotal = Object.values(microsoftData.teams).reduce((sum, val) => sum + val, 0);
+            const otherTotal = Object.values(microsoftData.other).reduce((sum, val) => sum + val, 0) + microsoftData.m365.visio;
+
+            charts.msProductMix = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['M365 Licensing', 'Power Platform', 'Teams/Communications', 'Other (Project, Visio)'],
+                    datasets: [{
+                        data: [m365Total, powerTotal, teamsTotal, otherTotal],
+                        backgroundColor: ['#f25022', '#ffb900', '#6264a7', '#7fba00'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const percent = ((context.parsed / microsoftData.totalMs) * 100).toFixed(1);
+                                    return `${context.label}: $${(context.parsed / 1000).toFixed(0)}k (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create MS Trend Chart
+        function createMsTrendChart() {
+            const ctx = document.getElementById('msTrendChart').getContext('2d');
+            if (charts.msTrend) charts.msTrend.destroy();
+
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthlyTotals = new Array(12).fill(0);
+            const m365Monthly = new Array(12).fill(0);
+            const powerMonthly = new Array(12).fill(0);
+            const teamsMonthly = new Array(12).fill(0);
+            const otherMonthly = new Array(12).fill(0);
+
+            microsoftData.products.forEach(product => {
+                product.monthly.forEach((val, idx) => {
+                    monthlyTotals[idx] += val;
+                    if (product.category.category === 'm365') m365Monthly[idx] += val;
+                    else if (product.category.category === 'power') powerMonthly[idx] += val;
+                    else if (product.category.category === 'teams') teamsMonthly[idx] += val;
+                    else otherMonthly[idx] += val;
+                });
+            });
+
+            charts.msTrend = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: 'M365 Licensing', data: m365Monthly, backgroundColor: '#f25022', stack: 'stack1' },
+                        { label: 'Power Platform', data: powerMonthly, backgroundColor: '#ffb900', stack: 'stack1' },
+                        { label: 'Teams', data: teamsMonthly, backgroundColor: '#6264a7', stack: 'stack1' },
+                        { label: 'Other', data: otherMonthly, backgroundColor: '#7fba00', stack: 'stack1' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                footer: function(tooltipItems) {
+                                    const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
+                                    return 'Total: $' + total.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'k'; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create License Per User Chart
+        function createLicensePerUserChart() {
+            const ctx = document.getElementById('licensePerUserChart').getContext('2d');
+            if (charts.licensePerUser) charts.licensePerUser.destroy();
+
+            const infoWorkers = parseInt(document.getElementById('infoWorkers').value) || 215;
+            const mobileWorkers = parseInt(document.getElementById('mobileWorkers').value) || 215;
+
+            const infoWorkerCost = microsoftData.m365.infoWorker / infoWorkers / 12;
+            const mobileWorkerCost = microsoftData.m365.mobileWorker / mobileWorkers / 12;
+
+            charts.licensePerUser = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Information Worker', 'Mobile Worker'],
+                    datasets: [
+                        {
+                            label: 'Actual Cost/User/Month',
+                            data: [infoWorkerCost, mobileWorkerCost],
+                            backgroundColor: ['#f25022', '#6264a7']
+                        },
+                        {
+                            label: 'Benchmark',
+                            data: [benchmarks.m365InfoWorker, benchmarks.m365MobileWorker],
+                            backgroundColor: ['rgba(242, 80, 34, 0.3)', 'rgba(98, 100, 167, 0.3)'],
+                            borderColor: ['#f25022', '#6264a7'],
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toFixed(2) + '/user/month';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '$' + value; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create M365 Breakdown Chart
+        function createM365BreakdownChart() {
+            const ctx = document.getElementById('m365BreakdownChart').getContext('2d');
+            if (charts.m365Breakdown) charts.m365Breakdown.destroy();
+
+            const data = [
+                { label: 'M365 Business Premium', value: microsoftData.m365.infoWorker },
+                { label: 'M365 F1/E1 (Mobile)', value: microsoftData.m365.mobileWorker },
+                { label: 'Exchange Online P2', value: microsoftData.m365.exchange },
+                { label: 'Extra Storage', value: microsoftData.m365.storage },
+                { label: 'Copilot', value: microsoftData.m365.copilot },
+                { label: 'Visio', value: microsoftData.m365.visio }
+            ].filter(d => d.value > 0);
+
+            charts.m365Breakdown = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.label),
+                    datasets: [{
+                        label: 'Annual Spend',
+                        data: data.map(d => d.value),
+                        backgroundColor: '#f25022'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.x.toLocaleString(undefined, {maximumFractionDigits: 0}) + '/year';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'k'; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Power Platform Chart
+        function createPowerPlatformChart() {
+            const ctx = document.getElementById('powerPlatformChart').getContext('2d');
+            if (charts.powerPlatform) charts.powerPlatform.destroy();
+
+            const data = [
+                { label: 'Power BI', value: microsoftData.power.powerBi },
+                { label: 'Fabric', value: microsoftData.power.fabric },
+                { label: 'Power Apps', value: microsoftData.power.powerApps },
+                { label: 'Dataverse', value: microsoftData.power.dataverse }
+            ];
+
+            charts.powerPlatform = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.label),
+                    datasets: [{
+                        data: data.map(d => d.value),
+                        backgroundColor: ['#ffb900', '#e6a600', '#cc9400', '#b38200'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: $${context.parsed.toLocaleString(undefined, {maximumFractionDigits: 0})}/year`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Power Platform KPIs
+        function updatePowerPlatformKpis() {
+            document.getElementById('powerBiSpend').textContent = '$' + microsoftData.power.powerBi.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('fabricSpend').textContent = '$' + microsoftData.power.fabric.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('powerAppsSpend').textContent = '$' + microsoftData.power.powerApps.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('dataverseSpend').textContent = '$' + microsoftData.power.dataverse.toLocaleString(undefined, {maximumFractionDigits: 0});
+        }
+
+        // Populate Product Table
+        function populateProductTable() {
+            const tbody = document.getElementById('productTableBody');
+            let html = '';
+
+            microsoftData.products.forEach(product => {
+                const percentOfMs = (product.annual / microsoftData.totalMs * 100).toFixed(1);
+                const cat = product.category;
+
+                html += `
+                    <tr>
+                        <td><strong>${product.name}</strong></td>
+                        <td><span class="product-badge ${cat.category}">${cat.label}</span></td>
+                        <td class="number">$${product.monthlyAvg.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                        <td class="number">$${product.annual.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                        <td class="number">${percentOfMs}%</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Create Per User Cost Chart
+        function createPerUserCostChart() {
+            const ctx = document.getElementById('perUserCostChart').getContext('2d');
+            if (charts.perUserCost) charts.perUserCost.destroy();
+
+            const infoWorkers = parseInt(document.getElementById('infoWorkers').value) || 215;
+            const mobileWorkers = parseInt(document.getElementById('mobileWorkers').value) || 215;
+            const totalUsers = infoWorkers + mobileWorkers;
+
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthlyTotals = new Array(12).fill(0);
+
+            microsoftData.products.forEach(product => {
+                product.monthly.forEach((val, idx) => {
+                    monthlyTotals[idx] += val;
+                });
+            });
+
+            const perUserMonthly = monthlyTotals.map(total => total / totalUsers);
+
+            charts.perUserCost = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'MS Cost per User',
+                            data: perUserMonthly,
+                            borderColor: '#0078d4',
+                            backgroundColor: 'rgba(0, 120, 212, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Benchmark',
+                            data: new Array(12).fill(benchmarks.totalMsPerUser),
+                            borderColor: '#dc3545',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '$' + value; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create User Type Comparison Chart
+        function createUserTypeComparisonChart() {
+            const ctx = document.getElementById('userTypeComparisonChart').getContext('2d');
+            if (charts.userTypeComparison) charts.userTypeComparison.destroy();
+
+            const infoWorkers = parseInt(document.getElementById('infoWorkers').value) || 215;
+            const mobileWorkers = parseInt(document.getElementById('mobileWorkers').value) || 215;
+
+            // Calculate total cost allocated to each user type
+            const infoWorkerTotal = microsoftData.m365.infoWorker +
+                                    microsoftData.m365.copilot +
+                                    microsoftData.m365.visio +
+                                    microsoftData.other.project +
+                                    (microsoftData.power.powerBi * 0.8) + // 80% to info workers
+                                    microsoftData.power.powerApps;
+
+            const mobileWorkerTotal = microsoftData.m365.mobileWorker;
+
+            const sharedCosts = microsoftData.teams.fixed +
+                               microsoftData.teams.teamsRoom +
+                               microsoftData.m365.exchange +
+                               microsoftData.m365.storage +
+                               microsoftData.power.fabric +
+                               microsoftData.power.dataverse +
+                               (microsoftData.power.powerBi * 0.2); // 20% to mobile workers
+
+            const infoWorkerPerUser = (infoWorkerTotal + (sharedCosts * 0.5)) / infoWorkers;
+            const mobileWorkerPerUser = (mobileWorkerTotal + (sharedCosts * 0.5)) / mobileWorkers;
+
+            charts.userTypeComparison = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Information Worker', 'Mobile Worker'],
+                    datasets: [{
+                        label: 'Annual MS Cost per User',
+                        data: [infoWorkerPerUser, mobileWorkerPerUser],
+                        backgroundColor: ['#f25022', '#6264a7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0}) + '/year';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '$' + value; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Optimization Opportunities
+        function updateOptimizationOpportunities() {
+            const infoWorkers = parseInt(document.getElementById('infoWorkers').value) || 215;
+            const mobileWorkers = parseInt(document.getElementById('mobileWorkers').value) || 215;
+
+            const infoWorkerCostPerMonth = microsoftData.m365.infoWorker / infoWorkers / 12;
+            const mobileWorkerCostPerMonth = microsoftData.m365.mobileWorker / mobileWorkers / 12;
+
+            const opportunities = [];
+
+            // Check M365 Business Premium vs E3/E5 optimization
+            if (infoWorkerCostPerMonth > 35) {
+                opportunities.push({
+                    title: 'Review M365 License Tier',
+                    description: 'Current per-user cost is higher than typical Business Premium pricing. Consider reviewing license assignments for potential downgrades where features are not fully utilized.',
+                    savings: 'Potential: $' + ((infoWorkerCostPerMonth - 32) * infoWorkers * 12).toFixed(0) + '/year'
+                });
+            }
+
+            // Check for Copilot adoption
+            if (microsoftData.m365.copilot > 0 && microsoftData.m365.copilot < microsoftData.m365.infoWorker * 0.1) {
+                opportunities.push({
+                    title: 'Copilot Pilot Evaluation',
+                    description: 'Limited Copilot adoption detected. Evaluate pilot results to determine ROI before expanding rollout or consider pausing if value is unclear.',
+                    savings: 'Review: $' + microsoftData.m365.copilot.toFixed(0) + '/year'
+                });
+            }
+
+            // Check Power Platform spend
+            const powerTotal = Object.values(microsoftData.power).reduce((sum, val) => sum + val, 0);
+            if (powerTotal > microsoftData.totalMs * 0.15) {
+                opportunities.push({
+                    title: 'Power Platform Governance',
+                    description: 'Power Platform represents a significant portion of MS spend. Implement governance policies to manage app proliferation and optimize Dataverse storage.',
+                    savings: 'Optimize: Review usage patterns'
+                });
+            }
+
+            // Check Teams licensing
+            const teamsTotal = Object.values(microsoftData.teams).reduce((sum, val) => sum + val, 0);
+            if (teamsTotal > 25000) {
+                opportunities.push({
+                    title: 'Teams Telephony Review',
+                    description: 'Review Teams telephony licensing. Consider whether all calling plan features are necessary or if a hybrid approach could reduce costs.',
+                    savings: 'Potential: 10-20% reduction'
+                });
+            }
+
+            // Check storage costs
+            if (microsoftData.m365.storage > 5000) {
+                opportunities.push({
+                    title: 'SharePoint Storage Optimization',
+                    description: 'Extra storage costs detected. Implement data lifecycle policies, archive inactive content, and review retention settings.',
+                    savings: 'Potential: $' + (microsoftData.m365.storage * 0.3).toFixed(0) + '/year'
+                });
+            }
+
+            // Annual review recommendation
+            opportunities.push({
+                title: 'Annual License True-Up',
+                description: 'Schedule annual license reconciliation to remove inactive users, right-size licenses, and consolidate overlapping subscriptions.',
+                savings: 'Typical: 5-15% savings'
+            });
+
+            // Generate HTML
+            let html = '';
+            opportunities.forEach(opp => {
+                html += `
+                    <div class="optimization-card">
+                        <h4>${opp.title}</h4>
+                        <p>${opp.description}</p>
+                        <div class="savings">${opp.savings}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('optimizationGrid').innerHTML = html;
+        }
+
+        // Create Benchmark Chart
+        function createBenchmarkChart() {
+            const ctx = document.getElementById('benchmarkChart').getContext('2d');
+            if (charts.benchmark) charts.benchmark.destroy();
+
+            const msSharePercent = (microsoftData.totalMs / microsoftData.totalIt * 100);
+
+            charts.benchmark = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['MS as % of IT Spend'],
+                    datasets: [
+                        {
+                            label: 'Your Organization',
+                            data: [msSharePercent],
+                            backgroundColor: '#0078d4',
+                            barPercentage: 0.6
+                        },
+                        {
+                            label: 'Industry Benchmark',
+                            data: [benchmarks.msShareOfIt],
+                            backgroundColor: '#8bd8bd',
+                            barPercentage: 0.6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 40,
+                            ticks: {
+                                callback: function(value) { return value + '%'; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create License Benchmark Chart
+        function createLicenseBenchmarkChart() {
+            const ctx = document.getElementById('licenseBenchmarkChart').getContext('2d');
+            if (charts.licenseBenchmark) charts.licenseBenchmark.destroy();
+
+            const infoWorkers = parseInt(document.getElementById('infoWorkers').value) || 215;
+            const mobileWorkers = parseInt(document.getElementById('mobileWorkers').value) || 215;
+
+            const infoWorkerCost = microsoftData.m365.infoWorker / infoWorkers / 12;
+            const mobileWorkerCost = microsoftData.m365.mobileWorker / mobileWorkers / 12;
+
+            charts.licenseBenchmark = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Info Worker M365', 'Mobile Worker M365'],
+                    datasets: [
+                        {
+                            label: 'Your Cost',
+                            data: [infoWorkerCost, mobileWorkerCost],
+                            backgroundColor: '#0078d4'
+                        },
+                        {
+                            label: 'Benchmark',
+                            data: [benchmarks.m365InfoWorker, benchmarks.m365MobileWorker],
+                            backgroundColor: '#8bd8bd'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toFixed(2) + '/user/month';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) { return '$' + value; }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
