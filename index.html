@@ -10,9 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
     <style>
         :root {
             --primary-navy: #092c50;
@@ -36,6 +33,7 @@
             background-color: var(--light-gray);
             color: var(--text-dark);
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -47,1932 +45,270 @@
         .header {
             background-color: var(--primary-navy);
             color: var(--white);
-            padding: 1.5rem 2rem;
+            padding: 2rem;
+            text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .header h1 {
             color: var(--white);
-            font-size: 1.8rem;
-            margin-bottom: 0.3rem;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
         }
 
         .header .subtitle {
             color: var(--accent-mint);
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             font-weight: 400;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 3rem 2rem;
         }
 
-        .card {
-            background: var(--white);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        .intro {
+            text-align: center;
+            margin-bottom: 3rem;
         }
 
-        .card h2 {
-            font-size: 1.3rem;
+        .intro h2 {
+            font-size: 1.8rem;
             margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid var(--accent-mint);
         }
 
-        /* Input Controls */
-        .inputs-grid {
+        .intro p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
         }
 
-        .input-group {
+        .nav-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
             display: flex;
             flex-direction: column;
+            border: 2px solid transparent;
         }
 
-        .input-group label {
-            font-weight: 700;
-            color: var(--primary-navy);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .input-group .help-text {
-            font-size: 0.75rem;
-            color: var(--text-light);
-            margin-top: 0.25rem;
-        }
-
-        .input-group input {
-            padding: 0.75rem;
-            border: 2px solid var(--border-gray);
-            border-radius: 4px;
-            font-size: 1rem;
-            font-family: 'Roboto', sans-serif;
-            transition: border-color 0.3s;
-        }
-
-        .input-group input:focus {
-            outline: none;
+        .nav-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
             border-color: var(--accent-mint);
         }
 
-        /* KPI Cards */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1rem;
+        .nav-card-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .nav-card.highlight .nav-card-icon {
+            background: linear-gradient(135deg, var(--accent-mint) 0%, #6fc4a8 100%);
+        }
+
+        .nav-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            flex-grow: 1;
             margin-bottom: 1.5rem;
         }
 
-        .kpi-card {
-            background: linear-gradient(135deg, var(--primary-navy) 0%, #0a3d6b 100%);
-            color: var(--white);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-
-        .kpi-card.highlight {
-            background: linear-gradient(135deg, var(--accent-mint) 0%, #6fc4a8 100%);
-            color: var(--primary-navy);
-        }
-
-        .kpi-label {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .kpi-value {
-            font-size: 2rem;
-            font-weight: 900;
-            margin-bottom: 0.3rem;
-        }
-
-        .kpi-comparison {
-            font-size: 0.8rem;
-            opacity: 0.85;
-        }
-
-        /* Charts */
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin-top: 1rem;
-        }
-
-        .charts-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 1.5rem;
-        }
-
-        /* Data Table */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 1rem;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        thead {
-            background-color: var(--primary-navy);
-            color: var(--white);
-        }
-
-        th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid var(--border-gray);
-            transition: background-color 0.2s;
-        }
-
-        tbody tr:hover {
-            background-color: rgba(139, 216, 189, 0.1);
-        }
-
-        td {
-            padding: 0.75rem 1rem;
-        }
-
-        .number {
-            text-align: right;
-            font-weight: 700;
-            color: var(--primary-navy);
-        }
-
-        /* Filters */
-        .filter-controls {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-
-        .filter-controls select {
-            padding: 0.5rem;
-            border: 2px solid var(--border-gray);
-            border-radius: 4px;
-            background-color: var(--white);
-            font-family: 'Roboto', sans-serif;
-        }
-
-        .filter-controls button {
-            padding: 0.5rem 1.5rem;
-            background-color: var(--accent-mint);
-            color: var(--primary-navy);
-            border: none;
-            border-radius: 4px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .filter-controls button:hover {
-            background-color: #6fc4a8;
-        }
-
-        /* Run/Grow/Transform Badge */
-        .rgt-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .rgt-run {
-            background-color: #e3f2fd;
-            color: #1565c0;
-        }
-
-        .rgt-grow {
-            background-color: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .rgt-transform {
-            background-color: #f3e5f5;
-            color: #6a1b9a;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .inputs-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .kpi-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-container {
-                height: 300px;
-            }
-        }
-
-        .info-banner {
-            background-color: rgba(139, 216, 189, 0.2);
-            border-left: 4px solid var(--accent-mint);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-
-        .info-banner p {
-            margin: 0;
-            color: var(--text-dark);
-        }
-
-        /* Heatmap Styles */
-        .heatmap-container {
-            overflow-x: auto;
-            margin-top: 1rem;
-        }
-
-        .heatmap-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-
-        .heatmap-table th {
-            background-color: var(--primary-navy);
-            color: var(--white);
-            padding: 0.75rem 0.5rem;
-            text-align: center;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .heatmap-table th.category-header {
-            text-align: left;
-            padding-left: 1rem;
-            min-width: 200px;
-            position: sticky;
-            left: 0;
-            z-index: 11;
-        }
-
-        .heatmap-table td {
-            padding: 0;
-            text-align: center;
-            border: 1px solid #ffffff;
-        }
-
-        .heatmap-table td.category-label {
-            text-align: left;
-            padding: 0.75rem 1rem;
-            font-weight: 700;
-            background-color: var(--light-gray);
-            position: sticky;
-            left: 0;
-            z-index: 9;
-            border-right: 2px solid var(--primary-navy);
-        }
-
-        .heatmap-cell {
-            padding: 1rem 0.5rem;
-            font-weight: 700;
-            color: var(--white);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-
-        .heatmap-cell:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        /* Drill-down Navigation Styles */
-        .drill-nav {
+        .nav-card-footer {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background-color: var(--light-gray);
-            border-radius: 4px;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-gray);
         }
 
-        .drill-back-btn {
-            padding: 0.5rem 1rem;
+        .nav-card-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: rgba(139, 216, 189, 0.2);
+            color: var(--primary-navy);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .nav-card-arrow {
+            width: 36px;
+            height: 36px;
+            background-color: var(--accent-mint);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-navy);
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+
+        .nav-card:hover .nav-card-arrow {
             background-color: var(--primary-navy);
             color: var(--white);
-            border: none;
-            border-radius: 4px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-family: 'Roboto', sans-serif;
         }
 
-        .drill-back-btn:hover {
-            background-color: #0a3d6b;
-        }
-
-        .drill-breadcrumb {
-            font-size: 0.9rem;
-            color: var(--text-dark);
-        }
-
-        .drill-breadcrumb .level {
-            color: var(--text-light);
-        }
-
-        .drill-breadcrumb .current {
-            font-weight: 700;
-            color: var(--primary-navy);
-        }
-
-        .drill-hint {
+        .footer {
             text-align: center;
-            margin-top: 0.5rem;
+            padding: 2rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
         }
 
-        .drill-hint p {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            font-style: italic;
+        .footer a {
+            color: var(--primary-navy);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .footer a:hover {
+            color: var(--accent-mint);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .intro h2 {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <div>
-                <h1>Technology Cost & Benchmarking Dashboard</h1>
-                <p class="subtitle">TechElevate | Technology Consulting</p>
-            </div>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <a href="microsoft-spend.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: var(--accent-mint); color: var(--primary-navy); text-decoration: none; border-radius: 4px; font-weight: 700; transition: background-color 0.3s, transform 0.2s;">
-                    Microsoft Spend <span>&rarr;</span>
-                </a>
-                <a href="spend-benchmarking.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: var(--accent-mint); color: var(--primary-navy); text-decoration: none; border-radius: 4px; font-weight: 700; transition: background-color 0.3s, transform 0.2s;">
-                    IT Benchmarking <span>&rarr;</span>
-                </a>
-                <a href="it-maturity.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: var(--accent-mint); color: var(--primary-navy); text-decoration: none; border-radius: 4px; font-weight: 700; transition: background-color 0.3s, transform 0.2s;">
-                    IT Maturity <span>&rarr;</span>
-                </a>
-                <a href="e8-benchmarking.html" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: var(--accent-mint); color: var(--primary-navy); text-decoration: none; border-radius: 4px; font-weight: 700; transition: background-color 0.3s, transform 0.2s;">
-                    Essential 8 <span>&rarr;</span>
-                </a>
-            </div>
-        </div>
+        <h1>Technology Cost & Benchmarking Dashboard</h1>
+        <p class="subtitle">TechElevate | Technology Consulting</p>
     </div>
 
     <div class="container">
-        <!-- User Inputs -->
-        <div class="card">
-            <h2>Configuration & Assumptions</h2>
-            <div class="info-banner">
-                <p>Adjust these inputs to normalize benchmarks for your organization's context. All metrics will recalculate automatically.</p>
-            </div>
-            <div class="inputs-grid">
-                <div class="input-group">
-                    <label for="annualTurnover">Annual Turnover ($)</label>
-                    <input type="number" id="annualTurnover" value="140000000" min="0" step="100000">
-                    <span class="help-text">Used to calculate IT spend as % of revenue</span>
+        <div class="intro">
+            <h2>Welcome to the Technology Cost Analysis Suite</h2>
+            <p>Comprehensive tools for analyzing IT spend, benchmarking performance, and assessing organizational maturity. Select a module below to get started.</p>
+        </div>
+
+        <div class="nav-grid">
+            <!-- Spend Analysis Dashboard -->
+            <a href="spend-analysis.html" class="nav-card highlight">
+                <div class="nav-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="20" x2="12" y2="10"></line>
+                        <line x1="18" y1="20" x2="18" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="16"></line>
+                    </svg>
                 </div>
-
-                <div class="input-group">
-                    <label for="officeUsers">Office Users</label>
-                    <input type="number" id="officeUsers" value="200" min="0" step="1">
-                    <span class="help-text">Knowledge workers with individual devices</span>
+                <h3>Spend Analysis Dashboard</h3>
+                <p>Interactive dashboard showing total IT spend, monthly trends, vendor analysis, cost heatmaps, and Run/Grow/Transform categorization. Configure benchmarks and analyze per-user costs.</p>
+                <div class="nav-card-footer">
+                    <span class="nav-card-tag">Full Dashboard</span>
+                    <div class="nav-card-arrow">&rarr;</div>
                 </div>
+            </a>
 
-                <div class="input-group">
-                    <label for="fieldUsers">Field / Site Users</label>
-                    <input type="number" id="fieldUsers" value="200" min="0" step="1">
-                    <span class="help-text">Operational staff with shared devices</span>
+            <!-- Microsoft Spend -->
+            <a href="microsoft-spend.html" class="nav-card">
+                <div class="nav-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
                 </div>
-
-                <div class="input-group">
-                    <label for="sites">Sites / Locations</label>
-                    <input type="number" id="sites" value="5" min="1" step="1">
-                    <span class="help-text">Physical locations requiring IT infrastructure</span>
+                <h3>Microsoft Spend Analysis</h3>
+                <p>Detailed breakdown of Microsoft product spending including M365 licenses, Azure services, and other Microsoft solutions. Track licensing optimization opportunities.</p>
+                <div class="nav-card-footer">
+                    <span class="nav-card-tag">Vendor Analysis</span>
+                    <div class="nav-card-arrow">&rarr;</div>
                 </div>
+            </a>
 
-                <div class="input-group">
-                    <label for="benchmarkRevenue">Benchmark: IT Spend % of Revenue</label>
-                    <input type="number" id="benchmarkRevenue" value="3.5" min="0" max="100" step="0.1">
-                    <span class="help-text">Industry P75 benchmark</span>
+            <!-- IT Benchmarking -->
+            <a href="spend-benchmarking.html" class="nav-card">
+                <div class="nav-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
                 </div>
-
-                <div class="input-group">
-                    <label for="benchmarkPerUser">Benchmark: IT Spend per User ($)</label>
-                    <input type="number" id="benchmarkPerUser" value="8000" min="0" step="100">
-                    <span class="help-text">Industry P75 benchmark</span>
+                <h3>IT Benchmarking</h3>
+                <p>Compare your IT spending against industry benchmarks. Analyze cost efficiency, identify optimization opportunities, and track performance metrics against peers.</p>
+                <div class="nav-card-footer">
+                    <span class="nav-card-tag">Benchmarking</span>
+                    <div class="nav-card-arrow">&rarr;</div>
                 </div>
-            </div>
-        </div>
+            </a>
 
-        <!-- KPI Cards -->
-        <div class="kpi-grid" id="kpiGrid">
-            <!-- KPIs will be dynamically generated here -->
-        </div>
+            <!-- IT Maturity -->
+            <a href="it-maturity.html" class="nav-card">
+                <div class="nav-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 20V10"></path>
+                        <path d="M12 20V4"></path>
+                        <path d="M6 20v-6"></path>
+                    </svg>
+                </div>
+                <h3>IT Maturity Assessment</h3>
+                <p>Evaluate your organization's IT maturity across key domains. Assess capabilities from initial to optimized levels and identify improvement roadmaps.</p>
+                <div class="nav-card-footer">
+                    <span class="nav-card-tag">Assessment</span>
+                    <div class="nav-card-arrow">&rarr;</div>
+                </div>
+            </a>
 
-        <!-- Monthly Trend Chart -->
-        <div class="card">
-            <h2>Monthly IT Spend Trend</h2>
-            <div class="chart-container">
-                <canvas id="trendChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Spend per User (Unsegmented) -->
-        <div class="card">
-            <h2>Spend per User (Unsegmented)</h2>
-            <div class="info-banner">
-                <p>Simple normalization metric showing total IT spend divided by total users. Good early indicator of scale effects. Note: This metric should be segmented (office vs field) for more detailed analysis.</p>
-            </div>
-            <div class="chart-container" style="height: 300px;">
-                <canvas id="spendPerUserChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Per User Spend Breakdown -->
-        <div class="card">
-            <h2>IT Spend per User - Category Breakdown</h2>
-            <div class="filter-controls">
-                <button id="categoryL1Btn" onclick="updateCategoryBreakdown(1)">Category L1</button>
-                <button id="categoryL2Btn" onclick="updateCategoryBreakdown(2)" style="background-color: var(--primary-navy); color: var(--white);">Category L2</button>
-                <button id="categoryL3Btn" onclick="updateCategoryBreakdown(3)">Category L3</button>
-            </div>
-            <div class="chart-container" style="height: 500px;">
-                <canvas id="perUserBreakdownChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Breakdown Charts (Full Width) -->
-        <div class="card">
-            <h2>Spend by Top Vendors</h2>
-            <div class="chart-container">
-                <canvas id="vendorChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Spend by Category Level 2</h2>
-            <div id="categoryDrillNav" class="drill-nav" style="display: none;">
-                <button id="categoryBackBtn" onclick="categoryDrillBack()" class="drill-back-btn">
-                    ← Back
-                </button>
-                <span id="categoryBreadcrumb" class="drill-breadcrumb"></span>
-            </div>
-            <div class="chart-container">
-                <canvas id="categoryChart"></canvas>
-            </div>
-            <div class="drill-hint" id="categoryDrillHint">
-                <p>Click on a segment to drill down into sub-categories</p>
-            </div>
-        </div>
-
-        <!-- Spend Distribution (Pareto / 80-20) -->
-        <div class="card">
-            <h2>Spend Distribution (Pareto / 80-20)</h2>
-            <div class="info-banner">
-                <p>Shows how much of total spend is locked into a small number of items. Prevents wasted effort on low-impact cost lines. Common outcome: 70-80% of spend sits in 20-30% of line items.</p>
-            </div>
-            <div class="chart-container">
-                <canvas id="paretoChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Cost Heatmap (Category × Time) -->
-        <div class="card">
-            <h2>Cost Heatmap (Category × Time)</h2>
-            <div class="info-banner">
-                <p>Highlights cost creep, sudden changes, and areas that never go down. This is an analyst favourite and an exec sleeper hit.</p>
-            </div>
-            <div class="filter-controls">
-                <button id="heatmapL1Btn" onclick="updateHeatmap(1)" style="background-color: var(--primary-navy); color: var(--white);">Category L1</button>
-                <button id="heatmapL2Btn" onclick="updateHeatmap(2)">Category L2</button>
-            </div>
-            <div class="heatmap-container">
-                <table class="heatmap-table" id="heatmapTable">
-                    <!-- Heatmap will be populated here -->
-                </table>
-            </div>
-        </div>
-
-        <!-- Run/Grow/Transform Split -->
-        <div class="card">
-            <h2>Run / Grow / Transform Analysis</h2>
-            <div class="chart-container" style="height: 250px;">
-                <canvas id="rgtChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Data Table -->
-        <div class="card">
-            <h2>Detailed Spend Data</h2>
-            <div class="filter-controls">
-                <select id="filterL1">
-                    <option value="">All Categories (L1)</option>
-                </select>
-                <select id="filterL2">
-                    <option value="">All Categories (L2)</option>
-                </select>
-                <select id="filterVendor">
-                    <option value="">All Vendors</option>
-                </select>
-                <button onclick="resetFilters()">Reset Filters</button>
-            </div>
-            <div class="table-container">
-                <table id="dataTable">
-                    <thead>
-                        <tr>
-                            <th>Category L1</th>
-                            <th>Category L2</th>
-                            <th>Category L3</th>
-                            <th>Vendor</th>
-                            <th class="number">Annual Total ($)</th>
-                            <th class="number">Monthly Avg ($)</th>
-                            <th>Classification</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dataTableBody">
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
-            </div>
+            <!-- Essential 8 -->
+            <a href="e8-benchmarking.html" class="nav-card">
+                <div class="nav-card-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h3>Essential 8 Maturity</h3>
+                <p>Assess your security posture against the Australian Cyber Security Centre's Essential Eight mitigation strategies. Track maturity levels and compliance gaps.</p>
+                <div class="nav-card-footer">
+                    <span class="nav-card-tag">Security</span>
+                    <div class="nav-card-arrow">&rarr;</div>
+                </div>
+            </a>
         </div>
     </div>
 
-    <script>
-        // Global data storage
-        let spendData = [];
-        let charts = {};
-        let selectedCategoryLevel = 2; // Default to Category Level 2
-        let heatmapCategoryLevel = 1; // Default to Category Level 1 for heatmap
-
-        // Category chart drill-down state
-        let categoryDrillState = {
-            level: 2,              // Current drill level: 2 = Category L2, 3 = Category L3, 4 = Vendor
-            path: [],              // Navigation path: [{level: 2, label: 'All'}, {level: 3, label: 'Networks & Connectivity'}, ...]
-            filterCategory2: null, // Selected Category L2 filter
-            filterCategory3: null  // Selected Category L3 filter
-        };
-
-        // Classification rules for Office vs Field vs Shared
-        const classificationRules = {
-            office: [
-                'M365 - Information Workers',
-                'IT Support Services - Information Workers',
-                'Information Workers',
-                'Laptops',
-                'Desktops',
-                'Peripherals',
-                'Microsoft Copilot',
-                'Adobe',
-                'Bluebeam',
-                'AutoTask',
-                'Exchange Online',
-                'Visio',
-                'MS Project',
-                'Exclaimer'
-            ],
-            field: [
-                'M365 - Mobile Workers',
-                'IT Support Services - Mobile Workers',
-                'Mobile Workers',
-                'Mobile',
-                'SAP',
-                'FSM',
-                'Expense Management'
-            ],
-            shared: [
-                'Networks',
-                'WAN',
-                'LAN',
-                'Internet',
-                'Connectivity',
-                'Fixed',
-                'Teams',
-                'Backup',
-                'Security',
-                'Identity',
-                'Power',
-                'Dataverse',
-                'Fabric',
-                'Licensing',
-                'CIO',
-                'DR',
-                'Continuity'
-            ]
-        };
-
-        // Load data
-        async function loadData() {
-            try {
-                const response = await fetch('spend_data.json');
-                spendData = await response.json();
-
-                // Filter out user count rows
-                spendData = spendData.filter(row =>
-                    row['Category Level 1'] !== 'User Counts'
-                );
-
-                initializeDashboard();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                document.querySelector('.container').innerHTML +=
-                    '<div class="card" style="background-color: #ffebee; color: #c62828;">' +
-                    '<h2>Error Loading Data</h2>' +
-                    '<p>Could not load spend_data.json. Please ensure the file exists in the same directory.</p>' +
-                    '</div>';
-            }
-        }
-
-        // Initialize dashboard
-        function initializeDashboard() {
-            populateFilters();
-            calculateAndDisplayKPIs();
-            createCharts();
-            createHeatmap();
-            populateDataTable();
-
-            // Add event listeners for inputs
-            const inputs = ['annualTurnover', 'officeUsers', 'fieldUsers', 'sites',
-                          'benchmarkRevenue', 'benchmarkPerUser'];
-            inputs.forEach(id => {
-                document.getElementById(id).addEventListener('input', () => {
-                    calculateAndDisplayKPIs();
-                    updateCharts();
-                });
-            });
-
-            // Add filter event listeners
-            ['filterL1', 'filterL2', 'filterVendor'].forEach(id => {
-                document.getElementById(id).addEventListener('change', populateDataTable);
-            });
-        }
-
-        // Classify cost as office, field, or shared
-        function classifyCost(row) {
-            const l2 = row['Category Level 2'] || '';
-            const l3 = row['Category Level 3'] || '';
-            const text = (l2 + ' ' + l3).toLowerCase();
-
-            // Check office keywords
-            for (const keyword of classificationRules.office) {
-                if (text.includes(keyword.toLowerCase())) {
-                    return 'office';
-                }
-            }
-
-            // Check field keywords
-            for (const keyword of classificationRules.field) {
-                if (text.includes(keyword.toLowerCase())) {
-                    return 'field';
-                }
-            }
-
-            // Default to shared
-            return 'shared';
-        }
-
-        // Get monthly values from row
-        function getMonthlyValues(row) {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return months.map(month => {
-                const value = row[month];
-                // Handle formula strings
-                if (typeof value === 'string' && value.startsWith('=')) {
-                    // Simple formula evaluation (for demo purposes)
-                    try {
-                        return eval(value.substring(1));
-                    } catch {
-                        return 0;
-                    }
-                }
-                return parseFloat(value) || 0;
-            });
-        }
-
-        // Calculate total annual spend
-        function calculateTotalSpend() {
-            let total = 0;
-            spendData.forEach(row => {
-                const monthlyValues = getMonthlyValues(row);
-                total += monthlyValues.reduce((sum, val) => sum + val, 0);
-            });
-            return total;
-        }
-
-        // Calculate monthly totals
-        function calculateMonthlyTotals() {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const totals = new Array(12).fill(0);
-
-            spendData.forEach(row => {
-                const values = getMonthlyValues(row);
-                values.forEach((val, idx) => {
-                    totals[idx] += val;
-                });
-            });
-
-            return totals;
-        }
-
-        // Calculate office/field/shared splits
-        function calculateUserSplits() {
-            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
-            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
-            const sharedAllocation = 0.50; // Default 50% allocation to office users
-
-            let officeCosts = 0;
-            let fieldCosts = 0;
-            let sharedCosts = 0;
-
-            spendData.forEach(row => {
-                const monthlyValues = getMonthlyValues(row);
-                const rowTotal = monthlyValues.reduce((sum, val) => sum + val, 0);
-                const classification = classifyCost(row);
-
-                if (classification === 'office') {
-                    officeCosts += rowTotal;
-                } else if (classification === 'field') {
-                    fieldCosts += rowTotal;
-                } else {
-                    sharedCosts += rowTotal;
-                }
-            });
-
-            // Allocate shared costs
-            const sharedToOffice = sharedCosts * sharedAllocation;
-            const sharedToField = sharedCosts * (1 - sharedAllocation);
-
-            officeCosts += sharedToOffice;
-            fieldCosts += sharedToField;
-
-            return {
-                officeCosts,
-                fieldCosts,
-                sharedCosts,
-                officePerUser: officeUsers > 0 ? officeCosts / officeUsers : 0,
-                fieldPerUser: fieldUsers > 0 ? fieldCosts / fieldUsers : 0
-            };
-        }
-
-        // Calculate top 5 vendor concentration
-        function calculateTop5VendorConcentration() {
-            const vendorTotals = {};
-            spendData.forEach(row => {
-                const vendor = row['Vendor'] || 'Unknown';
-                const monthlyValues = getMonthlyValues(row);
-                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-                vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
-            });
-
-            const sortedVendors = Object.entries(vendorTotals)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
-
-            const top5Total = sortedVendors.reduce((sum, [, total]) => sum + total, 0);
-            const totalSpend = calculateTotalSpend();
-            const percentage = totalSpend > 0 ? (top5Total / totalSpend) * 100 : 0;
-
-            return percentage;
-        }
-
-        // Calculate and display KPIs
-        function calculateAndDisplayKPIs() {
-            const annualTurnover = parseFloat(document.getElementById('annualTurnover').value) || 0;
-            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
-            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
-            const sites = parseFloat(document.getElementById('sites').value) || 1;
-            const benchmarkRevenue = parseFloat(document.getElementById('benchmarkRevenue').value) || 0;
-            const benchmarkPerUser = parseFloat(document.getElementById('benchmarkPerUser').value) || 0;
-
-            const totalSpend = calculateTotalSpend();
-            const totalUsers = officeUsers + fieldUsers;
-            const spendAsPercentRevenue = annualTurnover > 0 ? (totalSpend / annualTurnover) * 100 : 0;
-            const blendedPerUser = totalUsers > 0 ? totalSpend / totalUsers : 0;
-            const top5Concentration = calculateTop5VendorConcentration();
-            const workforceMix = totalUsers > 0 ? {
-                officePercent: (officeUsers / totalUsers) * 100,
-                fieldPercent: (fieldUsers / totalUsers) * 100
-            } : { officePercent: 0, fieldPercent: 0 };
-
-            // Generate KPI HTML
-            const kpisHTML = `
-                <div class="kpi-card highlight">
-                    <div class="kpi-label">Total Technology Spend</div>
-                    <div class="kpi-value">$${totalSpend.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-                    <div class="kpi-comparison">Annual</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-label">IT Spend as % of Revenue</div>
-                    <div class="kpi-value">${spendAsPercentRevenue.toFixed(2)}%</div>
-                    <div class="kpi-comparison">Benchmark: ${benchmarkRevenue}% | ${spendAsPercentRevenue > benchmarkRevenue ? 'Above' : 'Below'}</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-label">Blended IT Spend per User</div>
-                    <div class="kpi-value">$${blendedPerUser.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-                    <div class="kpi-comparison">Benchmark: $${benchmarkPerUser.toLocaleString()} | ${blendedPerUser > benchmarkPerUser ? 'Above' : 'Below'}</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-label">Top 5 Vendor Concentration</div>
-                    <div class="kpi-value">${top5Concentration.toFixed(0)}%</div>
-                    <div class="kpi-comparison">Top 5 vendors = ${top5Concentration.toFixed(0)}% of total spend</div>
-                </div>
-
-                <div class="kpi-card">
-                    <div class="kpi-label">Workforce Mix</div>
-                    <div class="kpi-value">${workforceMix.officePercent.toFixed(0)}% / ${workforceMix.fieldPercent.toFixed(0)}%</div>
-                    <div class="kpi-comparison">Office / Field</div>
-                </div>
-
-                <div class="kpi-card highlight">
-                    <div class="kpi-label">Average Monthly Spend</div>
-                    <div class="kpi-value">$${(totalSpend / 12).toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-                    <div class="kpi-comparison">Last 12 months</div>
-                </div>
-            `;
-
-            document.getElementById('kpiGrid').innerHTML = kpisHTML;
-        }
-
-        // Create all charts
-        function createCharts() {
-            createTrendChart();
-            createSpendPerUserChart();
-            createPerUserBreakdownChart();
-            createCategoryChart();
-            createVendorChart();
-            createParetoChart();
-            createRGTChart();
-        }
-
-        // Update all charts
-        function updateCharts() {
-            Object.values(charts).forEach(chart => chart.destroy());
-            // Reset category drill-down state when inputs change
-            resetCategoryDrillDown();
-            createCharts();
-        }
-
-        // Create spend per user (unsegmented) chart
-        function createSpendPerUserChart() {
-            const ctx = document.getElementById('spendPerUserChart').getContext('2d');
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
-            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
-            const totalUsers = officeUsers + fieldUsers;
-
-            // Calculate monthly totals
-            const monthlyTotals = calculateMonthlyTotals();
-
-            // Calculate per-user spend for each month
-            const perUserData = monthlyTotals.map(total =>
-                totalUsers > 0 ? total / totalUsers : 0
-            );
-
-            charts.spendPerUser = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: 'Spend per User',
-                        data: perUserData,
-                        borderColor: '#092c50',
-                        backgroundColor: 'rgba(9, 44, 80, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
-                        pointBackgroundColor: '#092c50',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return 'Per User: $' + context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + (value / 1000).toFixed(1) + 'k';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Create trend chart
-        function createTrendChart() {
-            const ctx = document.getElementById('trendChart').getContext('2d');
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-            // Calculate monthly totals by Category Level 1
-            const itFundamentalsData = new Array(12).fill(0);
-            const lobApplicationsData = new Array(12).fill(0);
-
-            spendData.forEach(row => {
-                const category = row['Category Level 1'] || '';
-                const monthlyValues = getMonthlyValues(row);
-
-                if (category === 'IT Fundamentals (Infrastructure)') {
-                    monthlyValues.forEach((val, idx) => {
-                        itFundamentalsData[idx] += val;
-                    });
-                } else if (category === 'Line of Business Applications') {
-                    monthlyValues.forEach((val, idx) => {
-                        lobApplicationsData[idx] += val;
-                    });
-                }
-            });
-
-            charts.trend = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: 'IT Fundamentals (Infrastructure)',
-                            data: itFundamentalsData,
-                            backgroundColor: '#092c50',
-                            borderWidth: 1,
-                            borderColor: '#ffffff'
-                        },
-                        {
-                            label: 'Line of Business Applications',
-                            data: lobApplicationsData,
-                            backgroundColor: '#8bd8bd',
-                            borderWidth: 1,
-                            borderColor: '#ffffff'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': $' +
-                                           context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                },
-                                footer: function(tooltipItems) {
-                                    const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
-                                    return 'Total: $' + total.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + (value / 1000).toFixed(0) + 'k';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Create per-user breakdown chart by category
-        function createPerUserBreakdownChart() {
-            const ctx = document.getElementById('perUserBreakdownChart').getContext('2d');
-            const officeUsers = parseFloat(document.getElementById('officeUsers').value) || 0;
-            const fieldUsers = parseFloat(document.getElementById('fieldUsers').value) || 0;
-            const sharedAllocation = 0.50; // Default 50% allocation to office users
-
-            // Determine which category field to use
-            const categoryField = 'Category Level ' + selectedCategoryLevel;
-
-            // Aggregate costs by selected category level for office, field, and shared
-            const categoryBreakdown = {
-                office: {},
-                field: {},
-                shared: {}
-            };
-
-            spendData.forEach(row => {
-                const category = row[categoryField] || 'Unknown';
-                const monthlyValues = getMonthlyValues(row);
-                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-                const classification = classifyCost(row);
-
-                if (!categoryBreakdown[classification][category]) {
-                    categoryBreakdown[classification][category] = 0;
-                }
-                categoryBreakdown[classification][category] += total;
-            });
-
-            // Allocate shared costs
-            const officeCategories = {};
-            const fieldCategories = {};
-
-            // Add direct office costs
-            Object.entries(categoryBreakdown.office).forEach(([cat, cost]) => {
-                officeCategories[cat] = cost;
-            });
-
-            // Add direct field costs
-            Object.entries(categoryBreakdown.field).forEach(([cat, cost]) => {
-                fieldCategories[cat] = cost;
-            });
-
-            // Allocate shared costs
-            Object.entries(categoryBreakdown.shared).forEach(([cat, cost]) => {
-                const sharedToOffice = cost * sharedAllocation;
-                const sharedToField = cost * (1 - sharedAllocation);
-
-                officeCategories[cat] = (officeCategories[cat] || 0) + sharedToOffice;
-                fieldCategories[cat] = (fieldCategories[cat] || 0) + sharedToField;
-            });
-
-            // Convert to per-user costs
-            const officePerUserCategories = {};
-            const fieldPerUserCategories = {};
-
-            Object.entries(officeCategories).forEach(([cat, cost]) => {
-                officePerUserCategories[cat] = officeUsers > 0 ? cost / officeUsers : 0;
-            });
-
-            Object.entries(fieldCategories).forEach(([cat, cost]) => {
-                fieldPerUserCategories[cat] = fieldUsers > 0 ? cost / fieldUsers : 0;
-            });
-
-            // Get all unique categories
-            const allCategories = new Set([
-                ...Object.keys(officePerUserCategories),
-                ...Object.keys(fieldPerUserCategories)
-            ]);
-
-            // Sort categories by total spend
-            const sortedCategories = Array.from(allCategories).sort((a, b) => {
-                const totalA = (officePerUserCategories[a] || 0) + (fieldPerUserCategories[a] || 0);
-                const totalB = (officePerUserCategories[b] || 0) + (fieldPerUserCategories[b] || 0);
-                return totalB - totalA;
-            });
-
-            // Create datasets for each category
-            const datasets = sortedCategories.map((category, index) => {
-                const colors = generateColors(sortedCategories.length);
-                return {
-                    label: category,
-                    data: [
-                        officePerUserCategories[category] || 0,
-                        fieldPerUserCategories[category] || 0
-                    ],
-                    backgroundColor: colors[index],
-                    borderWidth: 1,
-                    borderColor: '#ffffff'
-                };
-            });
-
-            charts.perUserBreakdown = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Office User', 'Field User'],
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'right',
-                            labels: {
-                                boxWidth: 12,
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': $' +
-                                           context.parsed.x.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                },
-                                footer: function(tooltipItems) {
-                                    const total = tooltipItems.reduce((sum, item) => sum + item.parsed.x, 0);
-                                    return 'Total: $' + total.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + (value / 1000).toFixed(0) + 'k';
-                                }
-                            }
-                        },
-                        y: {
-                            stacked: true
-                        }
-                    }
-                }
-            });
-        }
-
-        // Create category breakdown chart
-        function createCategoryChart() {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            const state = categoryDrillState;
-
-            let categoryTotals = {};
-            let chartTitle = '';
-            let canDrillDown = true;
-
-            // Determine data based on drill-down level
-            if (state.level === 2) {
-                // Show Category L2 breakdown (top level)
-                spendData.forEach(row => {
-                    const category = row['Category Level 2'] || 'Unknown';
-                    const monthlyValues = getMonthlyValues(row);
-                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-                    categoryTotals[category] = (categoryTotals[category] || 0) + total;
-                });
-                chartTitle = 'Category Level 2';
-            } else if (state.level === 3) {
-                // Show Category L3 breakdown for selected Category L2
-                categoryTotals = getCategoryL3ForL2(state.filterCategory2);
-                chartTitle = state.filterCategory2 + ' - Sub-categories';
-            } else if (state.level === 4) {
-                // Show Vendor breakdown for selected Category L3
-                categoryTotals = getVendorsForL3(state.filterCategory2, state.filterCategory3);
-                chartTitle = state.filterCategory3 + ' - Vendors';
-                canDrillDown = false; // Deepest level
-            }
-
-            // Sort and get categories
-            const sortedCategories = Object.entries(categoryTotals)
-                .sort((a, b) => b[1] - a[1]);
-
-            const labels = sortedCategories.map(([cat]) => cat);
-            const data = sortedCategories.map(([, total]) => total);
-
-            // Generate colors
-            const colors = generateColors(labels.length);
-
-            // Calculate total for percentages
-            const grandTotal = data.reduce((sum, val) => sum + val, 0);
-
-            // Update breadcrumb
-            updateCategoryBreadcrumb();
-
-            charts.category = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors,
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    onClick: function(event, elements) {
-                        if (elements.length > 0 && canDrillDown) {
-                            const index = elements[0].index;
-                            const clickedLabel = labels[index];
-                            categoryChartDrillDown(clickedLabel);
-                        }
-                    },
-                    onHover: function(event, elements) {
-                        event.native.target.style.cursor = (elements.length > 0 && canDrillDown) ? 'pointer' : 'default';
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 12,
-                                font: {
-                                    size: 11
-                                },
-                                generateLabels: function(chart) {
-                                    const dataset = chart.data.datasets[0];
-                                    const total = dataset.data.reduce((sum, val) => sum + val, 0);
-                                    return chart.data.labels.map((label, i) => {
-                                        const value = dataset.data[i];
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        const formattedValue = '$' + value.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                        return {
-                                            text: `${label}: ${formattedValue} (${percentage}%)`,
-                                            fillStyle: dataset.backgroundColor[i],
-                                            strokeStyle: dataset.borderColor,
-                                            lineWidth: dataset.borderWidth,
-                                            hidden: false,
-                                            index: i
-                                        };
-                                    });
-                                }
-                            },
-                            onClick: function(e, legendItem, legend) {
-                                // Also enable drill-down from legend clicks
-                                if (canDrillDown) {
-                                    const clickedLabel = labels[legendItem.index];
-                                    categoryChartDrillDown(clickedLabel);
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    let tooltipText = context.label + ': $' +
-                                           context.parsed.toLocaleString(undefined, {maximumFractionDigits: 0}) +
-                                           ' (' + percentage + '%)';
-                                    if (canDrillDown) {
-                                        tooltipText += ' - Click to drill down';
-                                    }
-                                    return tooltipText;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Create vendor breakdown chart
-        function createVendorChart() {
-            const ctx = document.getElementById('vendorChart').getContext('2d');
-
-            // Aggregate by Vendor
-            const vendorTotals = {};
-            spendData.forEach(row => {
-                const vendor = row['Vendor'] || 'Unknown';
-                const monthlyValues = getMonthlyValues(row);
-                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-
-                vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
-            });
-
-            // Sort and get top 10 vendors
-            const sortedVendors = Object.entries(vendorTotals)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 10);
-
-            const labels = sortedVendors.map(([vendor]) => vendor);
-            const data = sortedVendors.map(([, total]) => total);
-
-            charts.vendor = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Annual Spend',
-                        data: data,
-                        backgroundColor: '#8bd8bd',
-                        borderColor: '#092c50',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return '$' + context.parsed.x.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + (value / 1000).toFixed(0) + 'k';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Create Pareto chart (80-20 distribution)
-        function createParetoChart() {
-            const ctx = document.getElementById('paretoChart').getContext('2d');
-
-            // Aggregate all spend items by Category L3 + Vendor
-            const items = [];
-            spendData.forEach(row => {
-                const itemName = (row['Category Level 3'] || row['Category Level 2'] || 'Unknown') +
-                               ' - ' + (row['Vendor'] || 'Unknown');
-                const monthlyValues = getMonthlyValues(row);
-                const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-
-                if (total > 0) {
-                    items.push({ name: itemName, total: total });
-                }
-            });
-
-            // Sort by total spend descending
-            items.sort((a, b) => b.total - a.total);
-
-            // Calculate cumulative percentages
-            const totalSpend = items.reduce((sum, item) => sum + item.total, 0);
-            let cumulative = 0;
-            const cumulativePercentages = items.map(item => {
-                cumulative += item.total;
-                return (cumulative / totalSpend) * 100;
-            });
-
-            // Take top 20 items for readability
-            const topItems = items.slice(0, 20);
-            const topCumulative = cumulativePercentages.slice(0, 20);
-
-            charts.pareto = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: topItems.map(item => item.name),
-                    datasets: [
-                        {
-                            type: 'bar',
-                            label: 'Annual Spend',
-                            data: topItems.map(item => item.total),
-                            backgroundColor: '#8bd8bd',
-                            borderColor: '#092c50',
-                            borderWidth: 1,
-                            yAxisID: 'y',
-                            order: 2  // Higher order = drawn first (behind)
-                        },
-                        {
-                            type: 'line',
-                            label: 'Cumulative %',
-                            data: topCumulative,
-                            borderColor: '#092c50',
-                            backgroundColor: 'rgba(9, 44, 80, 0.1)',
-                            borderWidth: 3,
-                            fill: false,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: '#092c50',
-                            pointBorderColor: '#ffffff',
-                            pointBorderWidth: 2,
-                            yAxisID: 'y1',
-                            order: 1  // Lower order = drawn last (on top)
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    if (context.dataset.type === 'bar') {
-                                        return 'Spend: $' + context.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                    } else {
-                                        return 'Cumulative: ' + context.parsed.y.toFixed(1) + '%';
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            ticks: {
-                                maxRotation: 90,
-                                minRotation: 45,
-                                font: {
-                                    size: 9
-                                }
-                            }
-                        },
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + (value / 1000).toFixed(0) + 'k';
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'Annual Spend ($)'
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            min: 0,
-                            max: 100,
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toFixed(0) + '%';
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'Cumulative %'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Create Run/Grow/Transform chart
-        function createRGTChart() {
-            const ctx = document.getElementById('rgtChart').getContext('2d');
-
-            // For this demo, all costs are BAU (Run)
-            // In a real implementation, you would classify based on Cost Type
-            const totalSpend = calculateTotalSpend();
-
-            charts.rgt = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Run (BAU)', 'Grow', 'Transform'],
-                    datasets: [{
-                        data: [totalSpend, 0, 0],
-                        backgroundColor: ['#1565c0', '#ef6c00', '#6a1b9a'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
-                                    return context.label + ': $' +
-                                           context.parsed.toLocaleString(undefined, {maximumFractionDigits: 0}) +
-                                           ' (' + percentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Generate colors for charts
-        function generateColors(count) {
-            const baseColors = [
-                '#092c50', '#8bd8bd', '#1565c0', '#ef6c00', '#6a1b9a',
-                '#2e7d32', '#c62828', '#6a1b9a', '#00838f', '#f57c00'
-            ];
-
-            const colors = [];
-            for (let i = 0; i < count; i++) {
-                colors.push(baseColors[i % baseColors.length]);
-            }
-            return colors;
-        }
-
-        // Get Category L3 items for a specific Category L2
-        function getCategoryL3ForL2(category2) {
-            const categoryTotals = {};
-            spendData.forEach(row => {
-                if (row['Category Level 2'] === category2) {
-                    const category = row['Category Level 3'] || 'Unknown';
-                    const monthlyValues = getMonthlyValues(row);
-                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-                    categoryTotals[category] = (categoryTotals[category] || 0) + total;
-                }
-            });
-            return categoryTotals;
-        }
-
-        // Get Vendors for a specific Category L2
-        function getVendorsForL2(category2) {
-            const vendorTotals = {};
-            spendData.forEach(row => {
-                if (row['Category Level 2'] === category2) {
-                    const vendor = row['Vendor'] || 'Unknown';
-                    const monthlyValues = getMonthlyValues(row);
-                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-                    vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
-                }
-            });
-            return vendorTotals;
-        }
-
-        // Get Vendors for a specific Category L3 within a Category L2
-        function getVendorsForL3(category2, category3) {
-            const vendorTotals = {};
-            spendData.forEach(row => {
-                if (row['Category Level 2'] === category2 && row['Category Level 3'] === category3) {
-                    const vendor = row['Vendor'] || 'Unknown';
-                    const monthlyValues = getMonthlyValues(row);
-                    const total = monthlyValues.reduce((sum, val) => sum + val, 0);
-                    vendorTotals[vendor] = (vendorTotals[vendor] || 0) + total;
-                }
-            });
-            return vendorTotals;
-        }
-
-        // Handle click on category chart segment to drill down
-        function categoryChartDrillDown(clickedLabel) {
-            const state = categoryDrillState;
-
-            if (state.level === 2) {
-                // Drill from Category L2 to Category L3
-                state.filterCategory2 = clickedLabel;
-                state.path.push({ level: 2, label: clickedLabel });
-                state.level = 3;
-            } else if (state.level === 3) {
-                // Drill from Category L3 to Vendor
-                state.filterCategory3 = clickedLabel;
-                state.path.push({ level: 3, label: clickedLabel });
-                state.level = 4;
-            }
-            // Level 4 (Vendor) is the deepest level - no further drill-down
-
-            // Update the chart
-            updateCategoryChartDrillDown();
-        }
-
-        // Go back one level in the drill-down
-        function categoryDrillBack() {
-            const state = categoryDrillState;
-
-            if (state.level === 3) {
-                // Go back to Category L2 view
-                state.level = 2;
-                state.filterCategory2 = null;
-                state.path.pop();
-            } else if (state.level === 4) {
-                // Go back to Category L3 view
-                state.level = 3;
-                state.filterCategory3 = null;
-                state.path.pop();
-            }
-
-            updateCategoryChartDrillDown();
-        }
-
-        // Reset drill-down to initial state
-        function resetCategoryDrillDown() {
-            categoryDrillState = {
-                level: 2,
-                path: [],
-                filterCategory2: null,
-                filterCategory3: null
-            };
-        }
-
-        // Update breadcrumb navigation
-        function updateCategoryBreadcrumb() {
-            const state = categoryDrillState;
-            const nav = document.getElementById('categoryDrillNav');
-            const breadcrumb = document.getElementById('categoryBreadcrumb');
-            const hint = document.getElementById('categoryDrillHint');
-
-            if (state.level === 2) {
-                // At top level - hide navigation, show hint
-                nav.style.display = 'none';
-                hint.style.display = 'block';
-                hint.innerHTML = '<p>Click on a segment to drill down into sub-categories</p>';
-            } else {
-                // Drilled down - show navigation
-                nav.style.display = 'flex';
-
-                let breadcrumbHtml = '<span class="level">All Categories</span>';
-
-                if (state.filterCategory2) {
-                    breadcrumbHtml += ' → <span class="' + (state.level === 3 ? 'current' : 'level') + '">' + state.filterCategory2 + '</span>';
-                }
-
-                if (state.filterCategory3) {
-                    breadcrumbHtml += ' → <span class="current">' + state.filterCategory3 + '</span>';
-                }
-
-                breadcrumb.innerHTML = breadcrumbHtml;
-
-                // Update hint based on level
-                if (state.level === 3) {
-                    hint.style.display = 'block';
-                    hint.innerHTML = '<p>Click on a segment to drill down to vendor level</p>';
-                } else if (state.level === 4) {
-                    hint.style.display = 'block';
-                    hint.innerHTML = '<p>Vendor level (deepest level)</p>';
-                }
-            }
-        }
-
-        // Update category chart based on drill-down state
-        function updateCategoryChartDrillDown() {
-            // Destroy existing chart
-            if (charts.category) {
-                charts.category.destroy();
-            }
-
-            // Update breadcrumb
-            updateCategoryBreadcrumb();
-
-            // Recreate chart with appropriate data
-            createCategoryChart();
-        }
-
-        // Populate filter dropdowns
-        function populateFilters() {
-            const l1Set = new Set();
-            const l2Set = new Set();
-            const vendorSet = new Set();
-
-            spendData.forEach(row => {
-                if (row['Category Level 1']) l1Set.add(row['Category Level 1']);
-                if (row['Category Level 2']) l2Set.add(row['Category Level 2']);
-                if (row['Vendor']) vendorSet.add(row['Vendor']);
-            });
-
-            const filterL1 = document.getElementById('filterL1');
-            const filterL2 = document.getElementById('filterL2');
-            const filterVendor = document.getElementById('filterVendor');
-
-            Array.from(l1Set).sort().forEach(val => {
-                const option = document.createElement('option');
-                option.value = val;
-                option.textContent = val;
-                filterL1.appendChild(option);
-            });
-
-            Array.from(l2Set).sort().forEach(val => {
-                const option = document.createElement('option');
-                option.value = val;
-                option.textContent = val;
-                filterL2.appendChild(option);
-            });
-
-            Array.from(vendorSet).sort().forEach(val => {
-                const option = document.createElement('option');
-                option.value = val;
-                option.textContent = val;
-                filterVendor.appendChild(option);
-            });
-        }
-
-        // Populate data table
-        function populateDataTable() {
-            const filterL1 = document.getElementById('filterL1').value;
-            const filterL2 = document.getElementById('filterL2').value;
-            const filterVendor = document.getElementById('filterVendor').value;
-
-            const filteredData = spendData.filter(row => {
-                if (filterL1 && row['Category Level 1'] !== filterL1) return false;
-                if (filterL2 && row['Category Level 2'] !== filterL2) return false;
-                if (filterVendor && row['Vendor'] !== filterVendor) return false;
-                return true;
-            });
-
-            const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '';
-
-            filteredData.forEach(row => {
-                const monthlyValues = getMonthlyValues(row);
-                const annualTotal = monthlyValues.reduce((sum, val) => sum + val, 0);
-                const monthlyAvg = annualTotal / 12;
-                const classification = classifyCost(row);
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row['Category Level 1'] || ''}</td>
-                    <td>${row['Category Level 2'] || ''}</td>
-                    <td>${row['Category Level 3'] || ''}</td>
-                    <td>${row['Vendor'] || ''}</td>
-                    <td class="number">$${annualTotal.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-                    <td class="number">$${monthlyAvg.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-                    <td><span class="rgt-badge rgt-run">${classification.toUpperCase()}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Reset filters
-        function resetFilters() {
-            document.getElementById('filterL1').value = '';
-            document.getElementById('filterL2').value = '';
-            document.getElementById('filterVendor').value = '';
-            populateDataTable();
-        }
-
-        // Update category breakdown chart based on selected level
-        function updateCategoryBreakdown(level) {
-            selectedCategoryLevel = level;
-
-            // Update button styles
-            ['categoryL1Btn', 'categoryL2Btn', 'categoryL3Btn'].forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (btnId === 'categoryL' + level + 'Btn') {
-                    btn.style.backgroundColor = 'var(--primary-navy)';
-                    btn.style.color = 'var(--white)';
-                } else {
-                    btn.style.backgroundColor = 'var(--accent-mint)';
-                    btn.style.color = 'var(--primary-navy)';
-                }
-            });
-
-            // Recreate the chart
-            if (charts.perUserBreakdown) {
-                charts.perUserBreakdown.destroy();
-            }
-            createPerUserBreakdownChart();
-        }
-
-        // Update heatmap based on selected category level
-        function updateHeatmap(level) {
-            heatmapCategoryLevel = level;
-
-            // Update button styles
-            ['heatmapL1Btn', 'heatmapL2Btn'].forEach(btnId => {
-                const btn = document.getElementById(btnId);
-                if (btnId === 'heatmapL' + level + 'Btn') {
-                    btn.style.backgroundColor = 'var(--primary-navy)';
-                    btn.style.color = 'var(--white)';
-                } else {
-                    btn.style.backgroundColor = 'var(--accent-mint)';
-                    btn.style.color = 'var(--primary-navy)';
-                }
-            });
-
-            // Recreate the heatmap
-            createHeatmap();
-        }
-
-        // Create heatmap visualization
-        function createHeatmap() {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const categoryField = 'Category Level ' + heatmapCategoryLevel;
-
-            // Aggregate data by category and month
-            const categoryMonthData = {};
-            spendData.forEach(row => {
-                const category = row[categoryField] || 'Unknown';
-                if (!categoryMonthData[category]) {
-                    categoryMonthData[category] = new Array(12).fill(0);
-                }
-
-                const monthlyValues = getMonthlyValues(row);
-                monthlyValues.forEach((val, idx) => {
-                    categoryMonthData[category][idx] += val;
-                });
-            });
-
-            // Sort categories by total spend
-            const sortedCategories = Object.entries(categoryMonthData)
-                .map(([category, values]) => ({
-                    category,
-                    values,
-                    total: values.reduce((sum, val) => sum + val, 0)
-                }))
-                .sort((a, b) => b.total - a.total);
-
-            // Find max value for color scaling
-            let maxValue = 0;
-            sortedCategories.forEach(cat => {
-                cat.values.forEach(val => {
-                    if (val > maxValue) maxValue = val;
-                });
-            });
-
-            // Generate heatmap HTML
-            let html = '<thead><tr><th class="category-header">Category</th>';
-            months.forEach(month => {
-                html += `<th>${month}</th>`;
-            });
-            html += '</tr></thead><tbody>';
-
-            sortedCategories.forEach(cat => {
-                html += `<tr><td class="category-label">${cat.category}</td>`;
-                cat.values.forEach(value => {
-                    const intensity = maxValue > 0 ? value / maxValue : 0;
-                    const color = getHeatmapColor(intensity);
-                    const displayValue = value >= 1000 ? '$' + (value / 1000).toFixed(0) + 'k' : '$' + value.toFixed(0);
-                    html += `<td><div class="heatmap-cell" style="background-color: ${color};" title="$${value.toLocaleString(undefined, {maximumFractionDigits: 0})}">${displayValue}</div></td>`;
-                });
-                html += '</tr>';
-            });
-
-            html += '</tbody>';
-            document.getElementById('heatmapTable').innerHTML = html;
-        }
-
-        // Get heatmap color based on intensity (0-1)
-        function getHeatmapColor(intensity) {
-            // Color gradient from light mint to dark navy
-            const lightColor = { r: 139, g: 216, b: 189 }; // #8bd8bd
-            const darkColor = { r: 9, g: 44, b: 80 };      // #092c50
-
-            const r = Math.round(lightColor.r + (darkColor.r - lightColor.r) * intensity);
-            const g = Math.round(lightColor.g + (darkColor.g - lightColor.g) * intensity);
-            const b = Math.round(lightColor.b + (darkColor.b - lightColor.b) * intensity);
-
-            return `rgb(${r}, ${g}, ${b})`;
-        }
-
-        // Initialize on page load
-        window.addEventListener('DOMContentLoaded', loadData);
-    </script>
+    <div class="footer">
+        <p>&copy; 2024 TechElevate | Technology Consulting. All rights reserved.</p>
+    </div>
 </body>
 </html>
